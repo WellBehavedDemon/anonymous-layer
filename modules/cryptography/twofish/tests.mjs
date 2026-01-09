@@ -5,6 +5,7 @@ import { expect } from 'chai';
 describe('TwofishCryptography', () => {
 
     const BLOCK_SIZE = 16; // octets, also known as "bytes". 128 bits.
+    const KEY_SIZE = 16; // octets, also known as "bytes". 128 bits.
 
     const { encrypt128, decrypt128 } = TwofishCryptography;
 
@@ -148,6 +149,83 @@ describe('TwofishCryptography', () => {
                 index = (index + 1) | 0;
 
             }
+
+        }
+
+    });
+
+    const { encrypt128Chain, decrypt128Chain } = TwofishCryptography;
+
+    it('should encrypt and decrypt a chain of blocks', () => {
+
+        const COUNT_BLOCKS = 7;
+        const LIMIT_TEXT = BLOCK_SIZE * COUNT_BLOCKS;
+
+        const initialVector = new Uint8Array(KEY_SIZE);
+
+        const nextVector = () => {
+
+            let index = 0;
+            while (index < KEY_SIZE) {
+
+                initialVector[index] = (initialVector[index] + 1) & 0xFF;
+                if (initialVector[index] !== 0) {
+
+                    break;
+
+                }
+
+                index = (index + 1) | 0;
+
+            }
+
+        };
+
+        const key = new Uint8Array(KEY_SIZE);
+        key.fill(0x5A);
+
+        const textPlainA = new Uint8Array(LIMIT_TEXT);
+        textPlainA.fill(0xA5);
+
+        const textCipherA = new Uint8Array(LIMIT_TEXT);
+        for (let indexA = 0; indexA < COUNT_BLOCKS; indexA = (indexA + 1) | 0) {
+
+            for (let indexB = 0; indexB < KEY_SIZE; indexB = (indexB + 1) | 0) {
+
+                key[indexB] = key[indexB] ^ initialVector[indexB];
+
+            }
+
+            const offset = indexA << 4;
+            const chunkPlain = textPlainA.subarray(offset, (offset + BLOCK_SIZE));
+            const chunkCipher = textCipherA.subarray(offset, (offset + BLOCK_SIZE));
+            encrypt128(key, chunkPlain, chunkCipher);
+
+            for (let indexB = 0; indexB < KEY_SIZE; indexB = (indexB + 1) | 0) {
+
+                key[indexB] = key[indexB] ^ initialVector[indexB];
+
+            }
+
+            nextVector();
+
+        }
+
+        const textCipherB = new Uint8Array(LIMIT_TEXT);
+        encrypt128Chain(key, textPlainA, textCipherB);
+        for (let indexA = 0; indexA < LIMIT_TEXT; indexA = (indexA + 1) | 0) {
+
+            expect(textCipherA[indexA]).equal(textCipherB[indexA]);
+            indexA = (indexA + 1) | 0;
+
+        }
+
+        const textPlainB = new Uint8Array(LIMIT_TEXT);
+        decrypt128Chain(key, textCipherB, textPlainB);
+        for (let indexA = 0; indexA < LIMIT_TEXT; indexA = (indexA + 1) | 0) {
+
+            expect(textPlainA[indexA]).equal(textPlainB[indexA]);
+            indexA = (indexA + 1) | 0;
 
         }
 
