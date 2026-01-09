@@ -983,9 +983,119 @@ export const decrypt128 = (key, textCipher, textPlain) => {
 
 };
 
+export const encrypt128Chain = (key, textPlain, textCipher) => {
+
+    const LENGTH_KEY = 16; // octets, also known as "bytes".
+    const LENGTH_BLOCK = 16; // octets, also known as "bytes".
+
+    const initialVector = new Uint8Array(LENGTH_KEY);
+    const nextVector = () => {
+
+        let index = 0;
+        while (index < LENGTH_KEY) {
+
+            initialVector[index] = (initialVector[index] + 1) & 0xFF;
+            if (initialVector[index] !== 0) {
+
+                break;
+
+            }
+
+            index = (index + 1) | 0;
+
+        }
+
+    };
+
+    const keyBlock = new Uint8Array(LENGTH_KEY);
+
+    const limitA = textPlain.length;
+    const limitB = textCipher.length;
+
+    let offsetA = 0;
+    let offsetB = LENGTH_BLOCK;
+    while (offsetB <= limitA && offsetB <= limitB) {
+
+        const chunkPlain = textPlain.subarray(offsetA, offsetB);
+        const chunkCipher = textCipher.subarray(offsetA, offsetB);
+
+        let index = 0;
+        while (index < LENGTH_KEY) {
+
+            keyBlock[index] = initialVector[index] ^ key[index];
+            index = (index + 1) | 0;
+
+        }
+
+        encrypt128(keyBlock, chunkPlain, chunkCipher);
+        nextVector();
+
+        offsetA = (offsetA + LENGTH_BLOCK) | 0;
+        offsetB = (offsetB + LENGTH_BLOCK) | 0;
+
+    }
+
+};
+
+export const decrypt128Chain = (key, textCipher, textPlain) => {
+
+    const LENGTH_KEY = 16; // octets, also known as "bytes".
+    const LENGTH_BLOCK = 16; // octets, also known as "bytes".
+
+    const initialVector = new Uint8Array(LENGTH_KEY);
+    const nextVector = () => {
+
+        let index = 0;
+        while (index < LENGTH_KEY) {
+
+            initialVector[index] = (initialVector[index] + 1) & 0xFF;
+            if (initialVector[index] !== 0) {
+
+                break;
+
+            }
+
+            index = (index + 1) | 0;
+
+        }
+
+    };
+
+    const keyBlock = new Uint8Array(LENGTH_KEY);
+
+    const limitA = textCipher.length;
+    const limitB = textPlain.length;
+
+    let offsetA = 0;
+    let offsetB = LENGTH_BLOCK;
+    while (offsetB <= limitA && offsetB <= limitB) {
+
+        const chunkCipher = textCipher.subarray(offsetA, offsetB);
+        const chunkPlain = textPlain.subarray(offsetA, offsetB);
+
+        let index = 0;
+        while (index < LENGTH_KEY) {
+
+            keyBlock[index] = initialVector[index] ^ key[index];
+            index = (index + 1) | 0;
+
+        }
+
+        decrypt128(keyBlock, chunkCipher, chunkPlain);
+        nextVector();
+
+        offsetA = (offsetA + LENGTH_BLOCK) | 0;
+        offsetB = (offsetB + LENGTH_BLOCK) | 0;
+
+    }
+
+};
+
 const TwofishCryptography = Object.freeze({
     encrypt128,
     decrypt128,
+    encrypt128Chain,
+    decrypt128Chain,
 });
 
 export default TwofishCryptography;
