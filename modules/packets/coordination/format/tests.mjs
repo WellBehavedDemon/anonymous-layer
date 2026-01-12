@@ -12,6 +12,15 @@ const TYPE_COORDINATION_FORWARD_IPV4_WEBSOCKET                  = 1;
 const TYPE_COORDINATION_FORWARD_IPV4_UDP                        = 2;
 const TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET                  = 3;
 const TYPE_COORDINATION_FORWARD_IPV6_UDP                        = 4;
+const TYPE_COORDINATION_REDIRECT_IPV4_WEBSOCKET                 = 5;
+const TYPE_COORDINATION_REDIRECT_IPV4_UDP                       = 6;
+const TYPE_COORDINATION_REDIRECT_IPV6_WEBSOCKET                 = 7;
+const TYPE_COORDINATION_REDIRECT_IPV6_UDP                       = 8;
+
+const REPLY_TYPE_IPV4_WEBSOCKET                                 = 1;
+const REPLY_TYPE_IPV4_UDP                                       = 2;
+const REPLY_TYPE_IPV6_WEBSOCKET                                 = 3;
+const REPLY_TYPE_IPV6_UDP                                       = 4;
 
 // offsets that are common for coordination packets of any type
 // offset #0 is where the checksum is stored
@@ -22,9 +31,19 @@ const TYPE_COORDINATION_FORWARD_IPV6_UDP                        = 4;
 
 const OFFSET_CHECKSUM                                           = 0;
 const OFFSET_TYPE                                               = 2;
+const OFFSET_REPLY_TYPE                                         = 3;
+const OFFSET_TIMEOUT_IDLE                                       = 6;
 const OFFSET_LENGTH_REAL                                        = 236;
 const OFFSET_LENGTH_NEXT                                        = 238;
 const OFFSET_KEY_DECRIPTION                                     = 240;
+
+const OFFSET_REPLY_IPV4_PORT                                    = 32 + 4;
+const OFFSET_REPLY_IPV4_HOST                                    = 32 + 8;
+const OFFSET_REPLY_IPV6_PORT                                    = 32 + 4;
+const OFFSET_REPLY_IPV6_HOST                                    = 32 + 16;
+
+const OFFSET_SHARED_SECRET                                      = 64 + 0;
+const OFFSET_REMAINDER                                          = 64 + 16;
 
 // offsets for TYPE_COORDINATION_FORWARD_IPV4_WEBSOCKET
 
@@ -45,6 +64,26 @@ const OFFSET_FORWARD_IPV6_WEBSOCKET_ADDRESS                     = 16;
 
 const OFFSET_FORWARD_IPV6_UDP_PORT                              = 4;
 const OFFSET_FORWARD_IPV6_UDP_ADDRESS                           = 16;
+
+// offsets for TYPE_COORDINATION_REDIRECT_IPV4_WEBSOCKET
+
+const OFFSET_REDIRECT_IPV4_WEBSOCKET_PORT                       = 4;
+const OFFSET_REDIRECT_IPV4_WEBSOCKET_ADDRESS                    = 8;
+
+// offsets for TYPE_COORDINATION_FORWARD_IPV4_UDP
+
+const OFFSET_REDIRECT_IPV4_UDP_PORT                             = 4;
+const OFFSET_REDIRECT_IPV4_UDP_ADDRESS                          = 8;
+
+// offsets for TYPE_COORDINATION_REDIRECT_IPV6_WEBSOCKET
+
+const OFFSET_REDIRECT_IPV6_WEBSOCKET_PORT                       = 4;
+const OFFSET_REDIRECT_IPV6_WEBSOCKET_ADDRESS                    = 16;
+
+// offsets for TYPE_COORDINATION_REDIRECT_IPV6_UDP
+
+const OFFSET_REDIRECT_IPV6_UDP_PORT                             = 4;
+const OFFSET_REDIRECT_IPV6_UDP_ADDRESS                          = 16;
 
 // polynomial modulus for packet checksum
 // expression: x^17 + x^3 + 1
@@ -238,6 +277,70 @@ describe('CoordinationPackets', () => {
                 0x00, 0x00, 0x00, 0x00, 0x01, 0x23, 0x04, 0x56,
                 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
                 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20,
+            ]),
+        },
+        {
+            text: {
+                type: TYPE_COORDINATION_REDIRECT_IPV6_WEBSOCKET,
+                key: new Uint8Array([
+                    0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48,
+                    0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50,
+                ]),
+                lengthReal: 0x0351,
+                lengthNext: 0x0852,
+                destination: Object.freeze({
+                    host: '2804::a3b6',
+                    port: 11412, // 0x2C94
+                }),
+                reply: Object.freeze({
+                    type: REPLY_TYPE_IPV6_UDP,
+                    destination: Object.freeze({
+                        host: '187c::6f8f',
+                        port: 12345, // 0x3039
+                    }),
+                }),
+                sharedSecret: new Uint8Array([
+                    0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28,
+                    0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30,
+                ]),
+                remainder: new Uint8Array([
+                    0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38,
+                ]),
+                timeoutIdle: 30, // seconds
+            },
+            binary: new Uint8Array([
+                0x5B, 0x95, 0x07, 0x04, 0x2C, 0x94, 0x1E, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x28, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xA3, 0xB6,
+                0x00, 0x00, 0x00, 0x00, 0x30, 0x39, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x18, 0x7C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x6F, 0x8F,
+                0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28,
+                0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30,
+                0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x03, 0x51, 0x08, 0x52,
+                0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48,
+                0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50,
             ]),
         },
     ]);
