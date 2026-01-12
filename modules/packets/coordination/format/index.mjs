@@ -46,18 +46,33 @@ const CALCULATE_HEADER_CHECKSUM = (buffer) => {
 
 const OFFSET_CHECKSUM                                           = 0;
 const OFFSET_TYPE                                               = 2;
+const OFFSET_REPLY_TYPE                                         = 3;
+const OFFSET_TIMEOUT_IDLE                                       = 6;
 const OFFSET_LENGTH_REAL                                        = 236;
 const OFFSET_LENGTH_NEXT                                        = 238;
 const OFFSET_KEY_DECRIPTION                                     = 240;
 
+const OFFSET_REPLY_IPV6_PORT                                    = 32 + 4;
+const OFFSET_REPLY_IPV6_HOST                                    = 32 + 16;
+
+const OFFSET_SHARED_SECRET                                      = 64 + 0;
+const OFFSET_REMAINDER                                          = 64 + 16;
+
 const OFFSET_FORWARD_IPV6_WEBSOCKET_PORT                        = 4;
 const OFFSET_FORWARD_IPV6_WEBSOCKET_ADDRESS                     = 16;
+
+const OFFSET_REDIRECT_IPV6_WEBSOCKET_PORT                       = 4;
+const OFFSET_REDIRECT_IPV6_WEBSOCKET_ADDRESS                    = 16;
 
 ////////////////////////////////////////////////////////////////////////
 // TYPES                                                              //
 ////////////////////////////////////////////////////////////////////////
 
 const TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET                  = 3;
+
+const TYPE_COORDINATION_REDIRECT_IPV6_WEBSOCKET                 = 7;
+
+const REPLY_TYPE_IPV6_UDP                                       = 4;
 
 ////////////////////////////////////////////////////////////////////////
 // MISCELLANEOUS HELPERS                                              //
@@ -123,6 +138,34 @@ const INSERT_IPV6 = (binary, offset, address) => {
 // TYPE-SPECIFIC FORMAT HELPERS                                       //
 ////////////////////////////////////////////////////////////////////////
 
+const FORMAT_REPLY_IPV6 = (reply, binary) => {
+
+    const { destination } = reply;
+    const { host, port } = destination;
+
+    INSERT_UINT16(binary, OFFSET_REPLY_IPV6_PORT, port);
+    INSERT_IPV6(binary, OFFSET_REPLY_IPV6_HOST, host);
+
+};
+
+const FORMAT_REPLY = (reply, binary) => {
+
+    const { type } = reply;
+    binary[OFFSET_REPLY_TYPE] = type;
+
+    switch (type) {
+
+        case REPLY_TYPE_IPV6_UDP: {
+
+            FORMAT_REPLY_IPV6(reply, binary);
+            break;
+
+        }
+
+    }
+
+};
+
 const FORMAT_COORDINATION_FORWARD_IPV6_WEBSOCKET = (text, binary) => {
 
     const { destination } = text;
@@ -132,6 +175,27 @@ const FORMAT_COORDINATION_FORWARD_IPV6_WEBSOCKET = (text, binary) => {
     INSERT_IPV6(binary, OFFSET_FORWARD_IPV6_WEBSOCKET_ADDRESS, host);
 
 };
+
+const FORMAT_COORDINATION_REDIRECT_IPV6_WEBSOCKET = (text, binary) => {
+
+    const { destination } = text;
+    const { host, port } = destination;
+
+    INSERT_UINT16(binary, OFFSET_REDIRECT_IPV6_WEBSOCKET_PORT, port);
+    INSERT_IPV6(binary, OFFSET_REDIRECT_IPV6_WEBSOCKET_ADDRESS, host);
+
+    const { sharedSecret, remainder } = text;
+    binary.set(sharedSecret, OFFSET_SHARED_SECRET);
+    binary.set(remainder, OFFSET_REMAINDER);
+
+    const { timeoutIdle } = text;
+    binary[OFFSET_TIMEOUT_IDLE] = timeoutIdle;
+
+    const { reply } = text;
+    FORMAT_REPLY(reply, binary);
+
+};
+
 
 ////////////////////////////////////////////////////////////////////////
 // EXPORTED PROCEDURES                                                //
@@ -152,6 +216,13 @@ const format = (text, binary) => {
         case TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET: {
 
             FORMAT_COORDINATION_FORWARD_IPV6_WEBSOCKET(text, binary);
+            break;
+
+        }
+
+        case TYPE_COORDINATION_REDIRECT_IPV6_WEBSOCKET: {
+
+            FORMAT_COORDINATION_REDIRECT_IPV6_WEBSOCKET(text, binary);
             break;
 
         }
