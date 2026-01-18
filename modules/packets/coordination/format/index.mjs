@@ -58,6 +58,9 @@ const OFFSET_REPLY_IPV6_HOST                                    = 32 + 16;
 const OFFSET_SHARED_SECRET                                      = 64 + 0;
 const OFFSET_REMAINDER                                          = 64 + 16;
 
+const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT                  = 4;
+const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_ADDRESS               = 16;
+
 const OFFSET_FORWARD_IPV6_WEBSOCKET_PORT                        = 4;
 const OFFSET_FORWARD_IPV6_WEBSOCKET_ADDRESS                     = 16;
 
@@ -71,6 +74,8 @@ const OFFSET_REDIRECT_IPV6_WEBSOCKET_ADDRESS                    = 16;
 const TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET                  = 3;
 
 const TYPE_COORDINATION_REDIRECT_IPV6_WEBSOCKET                 = 7;
+
+const TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET            = 14;
 
 const REPLY_TYPE_IPV6_UDP                                       = 4;
 
@@ -166,6 +171,16 @@ const FORMAT_REPLY = (reply, binary) => {
 
 };
 
+const FORMAT_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET = (text, binary) => {
+
+    const { destination } = text;
+    const { host, port } = destination;
+
+    INSERT_UINT16(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT, port);
+    INSERT_IPV6(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_ADDRESS, host);
+
+};
+
 const FORMAT_COORDINATION_FORWARD_IPV6_WEBSOCKET = (text, binary) => {
 
     const { destination } = text;
@@ -212,6 +227,13 @@ const format = (text, binary) => {
     binary.set(key, OFFSET_KEY_DECRIPTION);
 
     switch (type) {
+
+        case TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET: {
+
+            FORMAT_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET(text, binary);
+            break;
+
+        }
 
         case TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET: {
 
