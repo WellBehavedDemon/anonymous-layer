@@ -8,24 +8,24 @@ const LENGTH_HEADER = 256; // octets, also known as "bytes"
 const LENGTH_KEY = 16; // octets, also known as "bytes"
 
 // all defined types for coordination packets
-const TYPE_COORDINATION_FORWARD_IPV4_WEBSOCKET                  = 1;
-const TYPE_COORDINATION_FORWARD_IPV4_UDP                        = 2;
-const TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET                  = 3;
-const TYPE_COORDINATION_FORWARD_IPV6_UDP                        = 4;
-const TYPE_COORDINATION_REDIRECT_IPV4_WEBSOCKET                 = 5;
-const TYPE_COORDINATION_REDIRECT_IPV4_UDP                       = 6;
-const TYPE_COORDINATION_REDIRECT_IPV6_WEBSOCKET                 = 7;
-const TYPE_COORDINATION_REDIRECT_IPV6_UDP                       = 8;
+const TYPE_COORDINATION_FORWARD_IPV4_WEBSOCKET                  = 0;
+const TYPE_COORDINATION_FORWARD_IPV4_UDP                        = 1;
+const TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET                  = 2;
+const TYPE_COORDINATION_FORWARD_IPV6_UDP                        = 3;
+const TYPE_COORDINATION_REDIRECT_IPV4_WEBSOCKET                 = 4;
+const TYPE_COORDINATION_REDIRECT_IPV4_UDP                       = 5;
+const TYPE_COORDINATION_REDIRECT_IPV6_WEBSOCKET                 = 6;
+const TYPE_COORDINATION_REDIRECT_IPV6_UDP                       = 7;
 
 const TYPE_COORDINATION_ANNOUNCE_PEER_IPV4_WEBSOCKET            = 12;
 const TYPE_COORDINATION_ANNOUNCE_PEER_IPV4_UDP                  = 13;
 const TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET            = 14;
 const TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_UDP                  = 15;
 
-const REPLY_TYPE_IPV4_WEBSOCKET                                 = 1;
-const REPLY_TYPE_IPV4_UDP                                       = 2;
-const REPLY_TYPE_IPV6_WEBSOCKET                                 = 3;
-const REPLY_TYPE_IPV6_UDP                                       = 4;
+const REPLY_TYPE_IPV4_WEBSOCKET                                 = 0;
+const REPLY_TYPE_IPV4_UDP                                       = 1;
+const REPLY_TYPE_IPV6_WEBSOCKET                                 = 2;
+const REPLY_TYPE_IPV6_UDP                                       = 3;
 
 // offsets that are common for coordination packets of any type
 // offset #0 is where the checksum is stored
@@ -221,7 +221,7 @@ describe('CoordinationPackets', () => {
                 }),
             },
             binary: new Uint8Array([
-                0x52, 0x99, 0x03, 0x00, 0x2C, 0x94, 0x00, 0x00,
+                0x59, 0xD1, 0x02, 0x00, 0x2C, 0x94, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
@@ -270,7 +270,7 @@ describe('CoordinationPackets', () => {
                 }),
             },
             binary: new Uint8Array([
-                0xEF, 0x9C, 0x03, 0x00, 0x2C, 0x94, 0x00, 0x00,
+                0xE4, 0xD4, 0x02, 0x00, 0x2C, 0x94, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x28, 0x04, 0x18, 0x7C, 0x81, 0xCB, 0x68, 0x00,
                 0x31, 0xB7, 0x95, 0x70, 0x6F, 0x8F, 0xA3, 0xB6,
@@ -334,7 +334,7 @@ describe('CoordinationPackets', () => {
                 timeoutIdle: 30, // seconds
             },
             binary: new Uint8Array([
-                0x5B, 0x95, 0x07, 0x04, 0x2C, 0x94, 0x1E, 0x00,
+                0x68, 0xEC, 0x06, 0x03, 0x2C, 0x94, 0x1E, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x28, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xA3, 0xB6,

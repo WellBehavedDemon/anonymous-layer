@@ -18,7 +18,7 @@ const OFFSET_KEY_DECRYPTION                                     = 240;
 const OFFSET_FORWARD_IPV6_WEBSOCKET_PORT                        = 4;
 const OFFSET_FORWARD_IPV6_WEBSOCKET_ADDRESS                     = 16;
 
-const TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET                  = 3;
+const TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET                  = 2;
 
 // uses network byte order (big-endian) for integers
 const EXTRACT_UINT16 = (buffer, offset) => {

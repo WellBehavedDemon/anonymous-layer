@@ -17,7 +17,7 @@ const TIMEOUT_NETWORK = 5000; // milliseconds
 
 const PORT_ANLA_DEFAULT = 11412; // 'A' = 1, 'N' = 14, 'L' = 12
 
-const TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET                  = 3;
+const TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET                  = 2;
 
 const HOST_ANY = '::';
 const PORT_ANY = 0;

@@ -71,13 +71,13 @@ const OFFSET_REDIRECT_IPV6_WEBSOCKET_ADDRESS                    = 16;
 // TYPES                                                              //
 ////////////////////////////////////////////////////////////////////////
 
-const TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET                  = 3;
+const TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET                  = 2;
 
-const TYPE_COORDINATION_REDIRECT_IPV6_WEBSOCKET                 = 7;
+const TYPE_COORDINATION_REDIRECT_IPV6_WEBSOCKET                 = 6;
 
 const TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET            = 14;
 
-const REPLY_TYPE_IPV6_UDP                                       = 4;
+const REPLY_TYPE_IPV6_UDP                                       = 3;
 
 ////////////////////////////////////////////////////////////////////////
 // MISCELLANEOUS HELPERS                                              //
