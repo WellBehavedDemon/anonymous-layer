@@ -58,8 +58,10 @@ const OFFSET_KEY_DECRYPTION                                     = 240;
 const OFFSET_REPLY_IPV6_PORT                                    = 14;
 const OFFSET_REPLY_IPV6_HOST                                    = 32;
 
-const OFFSET_SHARED_SECRET                                      = 64 + 0;
-const OFFSET_REMAINDER                                          = 64 + 16;
+const OFFSET_SHARED_SECRET_DECRYPTION                           = 48;
+const OFFSET_SHARED_SECRET_ENCRYPTION                           = 64;
+const OFFSET_REMAINDER_DECRYPTION                               = 80;
+const OFFSET_REMAINDER_ENCRYPTION                               = 88;
 
 const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT                  = 12;
 const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_ADDRESS               = 16;
@@ -202,9 +204,13 @@ const FORMAT_COORDINATION_REDIRECT_IPV6_WEBSOCKET = (text, binary) => {
     INSERT_UINT16(binary, OFFSET_REDIRECT_IPV6_WEBSOCKET_PORT, port);
     INSERT_IPV6(binary, OFFSET_REDIRECT_IPV6_WEBSOCKET_ADDRESS, host);
 
-    const { sharedSecret, remainder } = text;
-    binary.set(sharedSecret, OFFSET_SHARED_SECRET);
-    binary.set(remainder, OFFSET_REMAINDER);
+    const { sharedSecretDecryption, remainderDecryption } = text;
+    binary.set(sharedSecretDecryption, OFFSET_SHARED_SECRET_DECRYPTION);
+    binary.set(remainderDecryption, OFFSET_REMAINDER_DECRYPTION);
+
+    const { sharedSecretEncryption, remainderEncryption } = text;
+    binary.set(sharedSecretEncryption, OFFSET_SHARED_SECRET_ENCRYPTION);
+    binary.set(remainderEncryption, OFFSET_REMAINDER_ENCRYPTION);
 
     const { shiftTimeIdle, shiftTimeTotal } = text;
     binary[OFFSET_SHIFT_TIME_IDLE] = shiftTimeIdle;

@@ -62,8 +62,10 @@ const OFFSET_KEY_DECRYPTION                                     = 240;
 const OFFSET_REPLY_IPV6_PORT                                    = 14;
 const OFFSET_REPLY_IPV6_HOST                                    = 32;
 
-const OFFSET_SHARED_SECRET                                      = 64 + 0;
-const OFFSET_REMAINDER                                          = 64 + 16;
+const OFFSET_SHARED_SECRET_DECRYPTION                           = 48;
+const OFFSET_SHARED_SECRET_ENCRYPTION                           = 64;
+const OFFSET_REMAINDER_DECRYPTION                               = 80;
+const OFFSET_REMAINDER_ENCRYPTION                               = 88;
 
 const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT                  = 12;
 const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_ADDRESS               = 16;
@@ -183,20 +185,35 @@ const PARSE_COORDINATION_REDIRECT_IPV6_WEBSOCKET = (binary, text) => {
     const port = EXTRACT_UINT16(binary, OFFSET_REDIRECT_IPV6_WEBSOCKET_PORT);
     text.destination = { host, port };
 
-    const subarrayRemainder = EXTRACT_SUBARRAY(
+    const subarrayRemainderDecryption = EXTRACT_SUBARRAY(
         binary,
-        OFFSET_REMAINDER,
+        OFFSET_REMAINDER_DECRYPTION,
         LENGTH_REMAINDER,
     );
 
-    const subarraySharedSecret = EXTRACT_SUBARRAY(
+    const subarraySharedSecretDecryption = EXTRACT_SUBARRAY(
         binary,
-        OFFSET_SHARED_SECRET,
+        OFFSET_SHARED_SECRET_DECRYPTION,
         LENGTH_SHARED_SECRET,
     );
 
-    text.sharedSecret = new Uint8Array(subarraySharedSecret);
-    text.remainder = new Uint8Array(subarrayRemainder);
+    text.sharedSecretDecryption = new Uint8Array(subarraySharedSecretDecryption);
+    text.remainderDecryption = new Uint8Array(subarrayRemainderDecryption);
+
+    const subarrayRemainderEncryption = EXTRACT_SUBARRAY(
+        binary,
+        OFFSET_REMAINDER_ENCRYPTION,
+        LENGTH_REMAINDER,
+    );
+
+    const subarraySharedSecretEncryption = EXTRACT_SUBARRAY(
+        binary,
+        OFFSET_SHARED_SECRET_ENCRYPTION,
+        LENGTH_SHARED_SECRET,
+    );
+
+    text.sharedSecretEncryption = new Uint8Array(subarraySharedSecretEncryption);
+    text.remainderEncryption = new Uint8Array(subarrayRemainderEncryption);
 
     text.shiftTimeIdle = binary[OFFSET_SHIFT_TIME_IDLE];
     text.shiftTimeTotal = binary[OFFSET_SHIFT_TIME_TOTAL];

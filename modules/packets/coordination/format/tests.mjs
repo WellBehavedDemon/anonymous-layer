@@ -12,10 +12,10 @@ const TYPE_COORDINATION_FORWARD_IPV4_WEBSOCKET                  = 0;
 const TYPE_COORDINATION_FORWARD_IPV4_UDP                        = 1;
 const TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET                  = 2;
 const TYPE_COORDINATION_FORWARD_IPV6_UDP                        = 3;
-const TYPE_COORDINATION_REDIRECT_IPV4_WEBSOCKET                 = 4;
-const TYPE_COORDINATION_REDIRECT_IPV4_UDP                       = 5;
-const TYPE_COORDINATION_REDIRECT_IPV6_WEBSOCKET                 = 6;
-const TYPE_COORDINATION_REDIRECT_IPV6_UDP                       = 7;
+const TYPE_COORDINATION_REDIRECT_STATIC_IPV4_WEBSOCKET          = 4;
+const TYPE_COORDINATION_REDIRECT_STATIC_IPV4_UDP                = 5;
+const TYPE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET          = 6;
+const TYPE_COORDINATION_REDIRECT_STATIC_IPV6_UDP                = 7;
 
 const TYPE_COORDINATION_ANNOUNCE_PEER_IPV4_WEBSOCKET            = 12;
 const TYPE_COORDINATION_ANNOUNCE_PEER_IPV4_UDP                  = 13;
@@ -51,8 +51,10 @@ const OFFSET_REPLY_IPV4_HOST                                    = 16;
 const OFFSET_REPLY_IPV6_PORT                                    = 14;
 const OFFSET_REPLY_IPV6_HOST                                    = 32;
 
-const OFFSET_SHARED_SECRET                                      = 64 + 0;
-const OFFSET_REMAINDER                                          = 64 + 16;
+const OFFSET_SHARED_SECRET_DECRYPTION                           = 48;
+const OFFSET_SHARED_SECRET_ENCRYPTION                           = 64;
+const OFFSET_REMAINDER_DECRYPTION                               = 80;
+const OFFSET_REMAINDER_ENCRYPTION                               = 88;
 
 // offsets for TYPE_COORDINATION_ANNOUNCE_PEER_IPV4_WEBSOCKET
 
@@ -94,25 +96,25 @@ const OFFSET_FORWARD_IPV6_WEBSOCKET_ADDRESS                     = 16;
 const OFFSET_FORWARD_IPV6_UDP_PORT                              = 12;
 const OFFSET_FORWARD_IPV6_UDP_ADDRESS                           = 16;
 
-// offsets for TYPE_COORDINATION_REDIRECT_IPV4_WEBSOCKET
+// offsets for TYPE_COORDINATION_REDIRECT_STATIC_IPV4_WEBSOCKET
 
-const OFFSET_REDIRECT_IPV4_WEBSOCKET_PORT                       = 12;
-const OFFSET_REDIRECT_IPV4_WEBSOCKET_ADDRESS                    = 16;
+const OFFSET_REDIRECT_STATIC_IPV4_WEBSOCKET_PORT                = 12;
+const OFFSET_REDIRECT_STATIC_IPV4_WEBSOCKET_ADDRESS             = 16;
 
 // offsets for TYPE_COORDINATION_FORWARD_IPV4_UDP
 
-const OFFSET_REDIRECT_IPV4_UDP_PORT                             = 12;
-const OFFSET_REDIRECT_IPV4_UDP_ADDRESS                          = 16;
+const OFFSET_REDIRECT_STATIC_IPV4_UDP_PORT                      = 12;
+const OFFSET_REDIRECT_STATIC_IPV4_UDP_ADDRESS                   = 16;
 
-// offsets for TYPE_COORDINATION_REDIRECT_IPV6_WEBSOCKET
+// offsets for TYPE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET
 
-const OFFSET_REDIRECT_IPV6_WEBSOCKET_PORT                       = 12;
-const OFFSET_REDIRECT_IPV6_WEBSOCKET_ADDRESS                    = 16;
+const OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_PORT                = 12;
+const OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_ADDRESS             = 16;
 
-// offsets for TYPE_COORDINATION_REDIRECT_IPV6_UDP
+// offsets for TYPE_COORDINATION_REDIRECT_STATIC_IPV6_UDP
 
-const OFFSET_REDIRECT_IPV6_UDP_PORT                             = 12;
-const OFFSET_REDIRECT_IPV6_UDP_ADDRESS                          = 16;
+const OFFSET_REDIRECT_STATIC_IPV6_UDP_PORT                      = 12;
+const OFFSET_REDIRECT_STATIC_IPV6_UDP_ADDRESS                   = 16;
 
 // polynomial modulus for packet checksum
 // expression: x^17 + x^3 + 1
@@ -310,7 +312,7 @@ describe('CoordinationPackets', () => {
         },
         {
             text: {
-                type: TYPE_COORDINATION_REDIRECT_IPV6_WEBSOCKET,
+                type: TYPE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET,
                 key: new Uint8Array([
                     0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48,
                     0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50,
@@ -328,12 +330,19 @@ describe('CoordinationPackets', () => {
                         port: 12345, // 0x3039
                     }),
                 }),
-                sharedSecret: new Uint8Array([
+                sharedSecretDecryption: new Uint8Array([
                     0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28,
                     0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30,
                 ]),
-                remainder: new Uint8Array([
+                remainderDecryption: new Uint8Array([
                     0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38,
+                ]),
+                sharedSecretEncryption: new Uint8Array([
+                    0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48,
+                    0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50,
+                ]),
+                remainderEncryption: new Uint8Array([
+                    0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58,
                 ]),
                 shiftTimeIdle: 15,      // (1 << 15) milliseconds, around 32 seconds
                 shiftTimeTotal: 20,     // (1 << 20) milliseconds, around 17 minutes
@@ -341,18 +350,18 @@ describe('CoordinationPackets', () => {
                 shiftDataTotal: 22,     // (1 << 22) octets, exactly 4 MiB
             },
             binary: new Uint8Array([
-                0xFA, 0xFD, 0x06, 0x03, 0x0F, 0x14, 0x0C, 0x16,
+                0x78, 0x5E, 0x06, 0x03, 0x0F, 0x14, 0x0C, 0x16,
                 0x00, 0x00, 0x00, 0x00, 0x2C, 0x94, 0x30, 0x39,
                 0x28, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xA3, 0xB6,
                 0x18, 0x7C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x6F, 0x8F,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28,
                 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30,
+                0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48,
+                0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50,
                 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -444,7 +453,7 @@ describe('CoordinationPackets', () => {
             CoordinationPackets.format(text, binaryB);
 
             COMMON_HEADER_CHECK(
-                binaryA,
+                binaryB,
                 typeA,
                 keyA,
                 lengthRealA,
