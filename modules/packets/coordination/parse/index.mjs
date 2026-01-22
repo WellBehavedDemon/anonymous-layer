@@ -1,6 +1,6 @@
 const LENGTH_HEADER = 256; // octets, also known as "bytes"
 const LENGTH_IPV6_ADDRESS = 16; // octets, also known as "bytes"
-const LENGTH_KEY_DECRIPTION = 16; // octets, also known as "bytes"
+const LENGTH_KEY_DECRYPTION = 16; // octets, also known as "bytes"
 const LENGTH_REMAINDER = 8; // octets, also known as "bytes"
 const LENGTH_SHARED_SECRET = 16; // octets, also known as "bytes"
 
@@ -51,24 +51,27 @@ const CALCULATE_HEADER_CHECKSUM = (buffer) => {
 const OFFSET_CHECKSUM                                           = 0;
 const OFFSET_TYPE                                               = 2;
 const OFFSET_REPLY_TYPE                                         = 3;
-const OFFSET_TIMEOUT_IDLE                                       = 6;
+const OFFSET_SHIFT_TIME_IDLE                                    = 4;
+const OFFSET_SHIFT_TIME_TOTAL                                   = 5;
+const OFFSET_SHIFT_DATA_AVERAGE                                 = 6;
+const OFFSET_SHIFT_DATA_TOTAL                                   = 7;
 const OFFSET_LENGTH_REAL                                        = 236;
 const OFFSET_LENGTH_NEXT                                        = 238;
 const OFFSET_KEY_DECRYPTION                                     = 240;
 
-const OFFSET_REPLY_IPV6_PORT                                    = 32 + 4;
-const OFFSET_REPLY_IPV6_HOST                                    = 32 + 16;
+const OFFSET_REPLY_IPV6_PORT                                    = 14;
+const OFFSET_REPLY_IPV6_HOST                                    = 32;
 
 const OFFSET_SHARED_SECRET                                      = 64 + 0;
 const OFFSET_REMAINDER                                          = 64 + 16;
 
-const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT                  = 4;
+const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT                  = 12;
 const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_ADDRESS               = 16;
 
-const OFFSET_FORWARD_IPV6_WEBSOCKET_PORT                        = 4;
+const OFFSET_FORWARD_IPV6_WEBSOCKET_PORT                        = 12;
 const OFFSET_FORWARD_IPV6_WEBSOCKET_ADDRESS                     = 16;
 
-const OFFSET_REDIRECT_IPV6_WEBSOCKET_PORT                       = 4;
+const OFFSET_REDIRECT_IPV6_WEBSOCKET_PORT                       = 12;
 const OFFSET_REDIRECT_IPV6_WEBSOCKET_ADDRESS                    = 16;
 
 ////////////////////////////////////////////////////////////////////////
@@ -195,7 +198,10 @@ const PARSE_COORDINATION_REDIRECT_IPV6_WEBSOCKET = (binary, text) => {
     text.sharedSecret = new Uint8Array(subarraySharedSecret);
     text.remainder = new Uint8Array(subarrayRemainder);
 
-    text.timeoutIdle = binary[OFFSET_TIMEOUT_IDLE];
+    text.shiftTimeIdle = binary[OFFSET_SHIFT_TIME_IDLE];
+    text.shiftTimeTotal = binary[OFFSET_SHIFT_TIME_TOTAL];
+    text.shiftDataAverage = binary[OFFSET_SHIFT_DATA_AVERAGE];
+    text.shiftDataTotal = binary[OFFSET_SHIFT_DATA_TOTAL];
 
     PARSE_REPLY(binary, text);
 
@@ -257,7 +263,7 @@ const parse = (binary) => {
     const subarrayKey = EXTRACT_SUBARRAY(
         binary,
         OFFSET_KEY_DECRYPTION,
-        LENGTH_KEY_DECRIPTION,
+        LENGTH_KEY_DECRYPTION,
     );
 
     text.key = new Uint8Array(subarrayKey);

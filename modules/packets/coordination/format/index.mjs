@@ -47,24 +47,27 @@ const CALCULATE_HEADER_CHECKSUM = (buffer) => {
 const OFFSET_CHECKSUM                                           = 0;
 const OFFSET_TYPE                                               = 2;
 const OFFSET_REPLY_TYPE                                         = 3;
-const OFFSET_TIMEOUT_IDLE                                       = 6;
+const OFFSET_SHIFT_TIME_IDLE                                    = 4;
+const OFFSET_SHIFT_TIME_TOTAL                                   = 5;
+const OFFSET_SHIFT_DATA_AVERAGE                                 = 6;
+const OFFSET_SHIFT_DATA_TOTAL                                   = 7;
 const OFFSET_LENGTH_REAL                                        = 236;
 const OFFSET_LENGTH_NEXT                                        = 238;
-const OFFSET_KEY_DECRIPTION                                     = 240;
+const OFFSET_KEY_DECRYPTION                                     = 240;
 
-const OFFSET_REPLY_IPV6_PORT                                    = 32 + 4;
-const OFFSET_REPLY_IPV6_HOST                                    = 32 + 16;
+const OFFSET_REPLY_IPV6_PORT                                    = 14;
+const OFFSET_REPLY_IPV6_HOST                                    = 32;
 
 const OFFSET_SHARED_SECRET                                      = 64 + 0;
 const OFFSET_REMAINDER                                          = 64 + 16;
 
-const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT                  = 4;
+const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT                  = 12;
 const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_ADDRESS               = 16;
 
-const OFFSET_FORWARD_IPV6_WEBSOCKET_PORT                        = 4;
+const OFFSET_FORWARD_IPV6_WEBSOCKET_PORT                        = 12;
 const OFFSET_FORWARD_IPV6_WEBSOCKET_ADDRESS                     = 16;
 
-const OFFSET_REDIRECT_IPV6_WEBSOCKET_PORT                       = 4;
+const OFFSET_REDIRECT_IPV6_WEBSOCKET_PORT                       = 12;
 const OFFSET_REDIRECT_IPV6_WEBSOCKET_ADDRESS                    = 16;
 
 ////////////////////////////////////////////////////////////////////////
@@ -203,14 +206,18 @@ const FORMAT_COORDINATION_REDIRECT_IPV6_WEBSOCKET = (text, binary) => {
     binary.set(sharedSecret, OFFSET_SHARED_SECRET);
     binary.set(remainder, OFFSET_REMAINDER);
 
-    const { timeoutIdle } = text;
-    binary[OFFSET_TIMEOUT_IDLE] = timeoutIdle;
+    const { shiftTimeIdle, shiftTimeTotal } = text;
+    binary[OFFSET_SHIFT_TIME_IDLE] = shiftTimeIdle;
+    binary[OFFSET_SHIFT_TIME_TOTAL] = shiftTimeTotal;
+
+    const { shiftDataAverage, shiftDataTotal } = text;
+    binary[OFFSET_SHIFT_DATA_AVERAGE] = shiftDataAverage;
+    binary[OFFSET_SHIFT_DATA_TOTAL] = shiftDataTotal;
 
     const { reply } = text;
     FORMAT_REPLY(reply, binary);
 
 };
-
 
 ////////////////////////////////////////////////////////////////////////
 // EXPORTED PROCEDURES                                                //
@@ -224,7 +231,7 @@ const format = (text, binary) => {
     INSERT_UINT16(binary, OFFSET_LENGTH_REAL, lengthReal);
     INSERT_UINT16(binary, OFFSET_LENGTH_NEXT, lengthNext);
 
-    binary.set(key, OFFSET_KEY_DECRIPTION);
+    binary.set(key, OFFSET_KEY_DECRYPTION);
 
     switch (type) {
 

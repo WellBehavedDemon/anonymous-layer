@@ -15,7 +15,7 @@ const OFFSET_TYPE                                               = 2;
 const OFFSET_LENGTH_REAL                                        = 236;
 const OFFSET_KEY_DECRYPTION                                     = 240;
 
-const OFFSET_FORWARD_IPV6_WEBSOCKET_PORT                        = 4;
+const OFFSET_FORWARD_IPV6_WEBSOCKET_PORT                        = 12;
 const OFFSET_FORWARD_IPV6_WEBSOCKET_ADDRESS                     = 16;
 
 const TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET                  = 2;

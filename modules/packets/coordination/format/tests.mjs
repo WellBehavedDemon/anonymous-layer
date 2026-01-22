@@ -30,84 +30,88 @@ const REPLY_TYPE_IPV6_UDP                                       = 3;
 // offsets that are common for coordination packets of any type
 // offset #0 is where the checksum is stored
 // offset #2 is where the octets that are the dividend begin
-// offset #236 is wehre the real length (header not included) is stored
+// offset #236 is where the real length (header not included) is stored
 // offset #238 is where the next length (header not included) is stored
 // offset #240 is where the decryption key is stored
 
 const OFFSET_CHECKSUM                                           = 0;
 const OFFSET_TYPE                                               = 2;
 const OFFSET_REPLY_TYPE                                         = 3;
-const OFFSET_TIMEOUT_IDLE                                       = 6;
+const OFFSET_SHIFT_TIME_IDLE                                    = 4;
+const OFFSET_SHIFT_TIME_TOTAL                                   = 5;
+const OFFSET_SHIFT_DATA_AVERAGE                                 = 6;
+const OFFSET_SHIFT_DATA_TOTAL                                   = 7;
+const OFFSET_FLAGS_32BITS                                       = 8;
 const OFFSET_LENGTH_REAL                                        = 236;
 const OFFSET_LENGTH_NEXT                                        = 238;
-const OFFSET_KEY_DECRIPTION                                     = 240;
+const OFFSET_KEY_DECRYPTION                                     = 240;
 
-const OFFSET_REPLY_IPV4_PORT                                    = 32 + 4;
-const OFFSET_REPLY_IPV4_HOST                                    = 32 + 8;
-const OFFSET_REPLY_IPV6_PORT                                    = 32 + 4;
-const OFFSET_REPLY_IPV6_HOST                                    = 32 + 16;
+const OFFSET_REPLY_IPV4_PORT                                    = 14;
+const OFFSET_REPLY_IPV4_HOST                                    = 16;
+const OFFSET_REPLY_IPV6_PORT                                    = 14;
+const OFFSET_REPLY_IPV6_HOST                                    = 32;
 
 const OFFSET_SHARED_SECRET                                      = 64 + 0;
 const OFFSET_REMAINDER                                          = 64 + 16;
 
 // offsets for TYPE_COORDINATION_ANNOUNCE_PEER_IPV4_WEBSOCKET
 
-const OFFSET_ANNOUNCE_PEER_IPV4_WEBSOCKET_PORT                  = 4;
-const OFFSET_ANNOUNCE_PEER_IPV4_WEBSOCKET_ADDRESS               = 8;
+const OFFSET_ANNOUNCE_PEER_IPV4_WEBSOCKET_PORT                  = 12;
+const OFFSET_ANNOUNCE_PEER_IPV4_WEBSOCKET_ADDRESS               = 16;
 
 // offsets for TYPE_COORDINATION_ANNOUNCE_PEER_IPV4_UDP
 
-const OFFSET_ANNOUNCE_PEER_IPV4_UDP_PORT                        = 4;
-const OFFSET_ANNOUNCE_PEER_IPV4_UDP_ADDRESS                     = 8;
+const OFFSET_ANNOUNCE_PEER_IPV4_UDP_PORT                        = 12;
+const OFFSET_ANNOUNCE_PEER_IPV4_UDP_ADDRESS                     = 16;
 
 // offsets for TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET
 
-const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT                  = 4;
+const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT                  = 12;
 const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_ADDRESS               = 16;
 
 // offsets for TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_UDP
 
-const OFFSET_ANNOUNCE_PEER_IPV6_UDP_PORT                        = 4;
+const OFFSET_ANNOUNCE_PEER_IPV6_UDP_PORT                        = 12;
 const OFFSET_ANNOUNCE_PEER_IPV6_UDP_ADDRESS                     = 16;
 
 // offsets for TYPE_COORDINATION_FORWARD_IPV4_WEBSOCKET
 
-const OFFSET_FORWARD_IPV4_WEBSOCKET_PORT                        = 4;
-const OFFSET_FORWARD_IPV4_WEBSOCKET_ADDRESS                     = 8;
+const OFFSET_FORWARD_IPV4_WEBSOCKET_PORT                        = 12;
+const OFFSET_FORWARD_IPV4_WEBSOCKET_ADDRESS                     = 16;
 
 // offsets for TYPE_COORDINATION_FORWARD_IPV4_UDP
 
-const OFFSET_FORWARD_IPV4_UDP_PORT                              = 4;
-const OFFSET_FORWARD_IPV4_UDP_ADDRESS                           = 8;
+const OFFSET_FORWARD_IPV4_UDP_PORT                              = 12;
+const OFFSET_FORWARD_IPV4_UDP_ADDRESS                           = 16;
 
 // offsets for TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET
 
-const OFFSET_FORWARD_IPV6_WEBSOCKET_PORT                        = 4;
+const OFFSET_FORWARD_IPV6_WEBSOCKET_PORT                        = 12;
 const OFFSET_FORWARD_IPV6_WEBSOCKET_ADDRESS                     = 16;
 
 // offsets for TYPE_COORDINATION_FORWARD_IPV6_UDP
 
-const OFFSET_FORWARD_IPV6_UDP_PORT                              = 4;
+const OFFSET_FORWARD_IPV6_UDP_PORT                              = 12;
 const OFFSET_FORWARD_IPV6_UDP_ADDRESS                           = 16;
 
 // offsets for TYPE_COORDINATION_REDIRECT_IPV4_WEBSOCKET
 
-const OFFSET_REDIRECT_IPV4_WEBSOCKET_PORT                       = 4;
-const OFFSET_REDIRECT_IPV4_WEBSOCKET_ADDRESS                    = 8;
+const OFFSET_REDIRECT_IPV4_WEBSOCKET_PORT                       = 12;
+const OFFSET_REDIRECT_IPV4_WEBSOCKET_ADDRESS                    = 16;
 
 // offsets for TYPE_COORDINATION_FORWARD_IPV4_UDP
 
-const OFFSET_REDIRECT_IPV4_UDP_PORT                             = 4;
-const OFFSET_REDIRECT_IPV4_UDP_ADDRESS                          = 8;
+const OFFSET_REDIRECT_IPV4_UDP_PORT                             = 12;
+const OFFSET_REDIRECT_IPV4_UDP_ADDRESS                          = 16;
 
 // offsets for TYPE_COORDINATION_REDIRECT_IPV6_WEBSOCKET
 
-const OFFSET_REDIRECT_IPV6_WEBSOCKET_PORT                       = 4;
+const OFFSET_REDIRECT_IPV6_WEBSOCKET_PORT                       = 12;
 const OFFSET_REDIRECT_IPV6_WEBSOCKET_ADDRESS                    = 16;
 
 // offsets for TYPE_COORDINATION_REDIRECT_IPV6_UDP
 
-const OFFSET_REDIRECT_IPV6_UDP_PORT                             = 4;
+const OFFSET_REDIRECT_IPV6_UDP_PORT                             = 12;
 const OFFSET_REDIRECT_IPV6_UDP_ADDRESS                          = 16;
 
 // polynomial modulus for packet checksum
@@ -177,8 +181,8 @@ describe('CoordinationPackets', () => {
         expect(lengthNextA).to.equal(lengthNextB);
 
         const keyB = buffer.subarray(
-            OFFSET_KEY_DECRIPTION,
-            (OFFSET_KEY_DECRIPTION + LENGTH_KEY) | 0,
+            OFFSET_KEY_DECRYPTION,
+            (OFFSET_KEY_DECRYPTION + LENGTH_KEY) | 0,
         );
 
         let index = 0;
@@ -221,8 +225,8 @@ describe('CoordinationPackets', () => {
                 }),
             },
             binary: new Uint8Array([
-                0x59, 0xD1, 0x02, 0x00, 0x2C, 0x94, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0xBF, 0x41, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x2C, 0x94, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -270,8 +274,8 @@ describe('CoordinationPackets', () => {
                 }),
             },
             binary: new Uint8Array([
-                0xE4, 0xD4, 0x02, 0x00, 0x2C, 0x94, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x02, 0x44, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x2C, 0x94, 0x00, 0x00,
                 0x28, 0x04, 0x18, 0x7C, 0x81, 0xCB, 0x68, 0x00,
                 0x31, 0xB7, 0x95, 0x70, 0x6F, 0x8F, 0xA3, 0xB6,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -331,17 +335,20 @@ describe('CoordinationPackets', () => {
                 remainder: new Uint8Array([
                     0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38,
                 ]),
-                timeoutIdle: 30, // seconds
+                shiftTimeIdle: 15,      // (1 << 15) milliseconds, around 32 seconds
+                shiftTimeTotal: 20,     // (1 << 20) milliseconds, around 17 minutes
+                shiftDataAverage: 12,   // (1 << 12) octets per second, exactly 4 KiB/s
+                shiftDataTotal: 22,     // (1 << 22) octets, exactly 4 MiB
             },
             binary: new Uint8Array([
-                0x68, 0xEC, 0x06, 0x03, 0x2C, 0x94, 0x1E, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0xFA, 0xFD, 0x06, 0x03, 0x0F, 0x14, 0x0C, 0x16,
+                0x00, 0x00, 0x00, 0x00, 0x2C, 0x94, 0x30, 0x39,
                 0x28, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xA3, 0xB6,
-                0x00, 0x00, 0x00, 0x00, 0x30, 0x39, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x18, 0x7C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x6F, 0x8F,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28,
                 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30,
                 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38,
@@ -383,8 +390,8 @@ describe('CoordinationPackets', () => {
                 }),
             },
             binary: new Uint8Array([
-                0x3F, 0x37, 0x0E, 0x00, 0x2C, 0x94, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0xD9, 0xA7, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x2C, 0x94, 0x00, 0x00,
                 0x81, 0xCB, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x68, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -437,7 +444,7 @@ describe('CoordinationPackets', () => {
             CoordinationPackets.format(text, binaryB);
 
             COMMON_HEADER_CHECK(
-                binaryB,
+                binaryA,
                 typeA,
                 keyA,
                 lengthRealA,
