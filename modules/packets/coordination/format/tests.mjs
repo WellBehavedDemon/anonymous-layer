@@ -2,124 +2,26 @@ import CoordinationPackets from './index.mjs';
 
 import { expect } from 'chai';
 
-const LENGTH_HEADER = 256; // octets, also known as "bytes"
+import {
+    LENGTH_COORDINATION_HEADER,
+    LENGTH_KEY_SYMMETRIC,
 
-// length in octets for the symmetric cryptography key (128-bits)
-const LENGTH_KEY = 16; // octets, also known as "bytes"
+    MODULUS_PACKET_CHECKSUM,
 
-// all defined types for coordination packets
-const TYPE_COORDINATION_FORWARD_IPV4_WEBSOCKET                  = 0;
-const TYPE_COORDINATION_FORWARD_IPV4_UDP                        = 1;
-const TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET                  = 2;
-const TYPE_COORDINATION_FORWARD_IPV6_UDP                        = 3;
-const TYPE_COORDINATION_REDIRECT_STATIC_IPV4_WEBSOCKET          = 4;
-const TYPE_COORDINATION_REDIRECT_STATIC_IPV4_UDP                = 5;
-const TYPE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET          = 6;
-const TYPE_COORDINATION_REDIRECT_STATIC_IPV6_UDP                = 7;
+    OFFSET_CHECKSUM,
+    OFFSET_COORDINATION_TYPE,
 
-const TYPE_COORDINATION_ANNOUNCE_PEER_IPV4_WEBSOCKET            = 12;
-const TYPE_COORDINATION_ANNOUNCE_PEER_IPV4_UDP                  = 13;
-const TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET            = 14;
-const TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_UDP                  = 15;
+    OFFSET_KEY_DECRYPTION,
 
-const REPLY_TYPE_IPV4_WEBSOCKET                                 = 0;
-const REPLY_TYPE_IPV4_UDP                                       = 1;
-const REPLY_TYPE_IPV6_WEBSOCKET                                 = 2;
-const REPLY_TYPE_IPV6_UDP                                       = 3;
+    OFFSET_LENGTH_NEXT,
+    OFFSET_LENGTH_REAL,
 
-// offsets that are common for coordination packets of any type
-// offset #0 is where the checksum is stored
-// offset #2 is where the octets that are the dividend begin
-// offset #236 is where the real length (header not included) is stored
-// offset #238 is where the next length (header not included) is stored
-// offset #240 is where the decryption key is stored
+    REPLY_TYPE_IPV6_UDP,
 
-const OFFSET_CHECKSUM                                           = 0;
-const OFFSET_TYPE                                               = 2;
-const OFFSET_REPLY_TYPE                                         = 3;
-const OFFSET_SHIFT_TIME_IDLE                                    = 4;
-const OFFSET_SHIFT_TIME_TOTAL                                   = 5;
-const OFFSET_SHIFT_DATA_AVERAGE                                 = 6;
-const OFFSET_SHIFT_DATA_TOTAL                                   = 7;
-const OFFSET_FLAGS_32BITS                                       = 8;
-const OFFSET_LENGTH_REAL                                        = 236;
-const OFFSET_LENGTH_NEXT                                        = 238;
-const OFFSET_KEY_DECRYPTION                                     = 240;
-
-const OFFSET_REPLY_IPV4_PORT                                    = 14;
-const OFFSET_REPLY_IPV4_HOST                                    = 16;
-const OFFSET_REPLY_IPV6_PORT                                    = 14;
-const OFFSET_REPLY_IPV6_HOST                                    = 32;
-
-const OFFSET_SHARED_SECRET_DECRYPTION                           = 48;
-const OFFSET_SHARED_SECRET_ENCRYPTION                           = 64;
-const OFFSET_REMAINDER_DECRYPTION                               = 80;
-const OFFSET_REMAINDER_ENCRYPTION                               = 88;
-
-// offsets for TYPE_COORDINATION_ANNOUNCE_PEER_IPV4_WEBSOCKET
-
-const OFFSET_ANNOUNCE_PEER_IPV4_WEBSOCKET_PORT                  = 12;
-const OFFSET_ANNOUNCE_PEER_IPV4_WEBSOCKET_ADDRESS               = 16;
-
-// offsets for TYPE_COORDINATION_ANNOUNCE_PEER_IPV4_UDP
-
-const OFFSET_ANNOUNCE_PEER_IPV4_UDP_PORT                        = 12;
-const OFFSET_ANNOUNCE_PEER_IPV4_UDP_ADDRESS                     = 16;
-
-// offsets for TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET
-
-const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT                  = 12;
-const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_ADDRESS               = 16;
-
-// offsets for TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_UDP
-
-const OFFSET_ANNOUNCE_PEER_IPV6_UDP_PORT                        = 12;
-const OFFSET_ANNOUNCE_PEER_IPV6_UDP_ADDRESS                     = 16;
-
-// offsets for TYPE_COORDINATION_FORWARD_IPV4_WEBSOCKET
-
-const OFFSET_FORWARD_IPV4_WEBSOCKET_PORT                        = 12;
-const OFFSET_FORWARD_IPV4_WEBSOCKET_ADDRESS                     = 16;
-
-// offsets for TYPE_COORDINATION_FORWARD_IPV4_UDP
-
-const OFFSET_FORWARD_IPV4_UDP_PORT                              = 12;
-const OFFSET_FORWARD_IPV4_UDP_ADDRESS                           = 16;
-
-// offsets for TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET
-
-const OFFSET_FORWARD_IPV6_WEBSOCKET_PORT                        = 12;
-const OFFSET_FORWARD_IPV6_WEBSOCKET_ADDRESS                     = 16;
-
-// offsets for TYPE_COORDINATION_FORWARD_IPV6_UDP
-
-const OFFSET_FORWARD_IPV6_UDP_PORT                              = 12;
-const OFFSET_FORWARD_IPV6_UDP_ADDRESS                           = 16;
-
-// offsets for TYPE_COORDINATION_REDIRECT_STATIC_IPV4_WEBSOCKET
-
-const OFFSET_REDIRECT_STATIC_IPV4_WEBSOCKET_PORT                = 12;
-const OFFSET_REDIRECT_STATIC_IPV4_WEBSOCKET_ADDRESS             = 16;
-
-// offsets for TYPE_COORDINATION_FORWARD_IPV4_UDP
-
-const OFFSET_REDIRECT_STATIC_IPV4_UDP_PORT                      = 12;
-const OFFSET_REDIRECT_STATIC_IPV4_UDP_ADDRESS                   = 16;
-
-// offsets for TYPE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET
-
-const OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_PORT                = 12;
-const OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_ADDRESS             = 16;
-
-// offsets for TYPE_COORDINATION_REDIRECT_STATIC_IPV6_UDP
-
-const OFFSET_REDIRECT_STATIC_IPV6_UDP_PORT                      = 12;
-const OFFSET_REDIRECT_STATIC_IPV6_UDP_ADDRESS                   = 16;
-
-// polynomial modulus for packet checksum
-// expression: x^17 + x^3 + 1
-// binary: 0b10000000000001001
-const PACKET_CHECKSUM_MODULUS = 0b10000000000001001;
+    TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET,
+    TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET,
+    TYPE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET,
+} from '../../../constants/index.mjs';
 
 // uses network byte order (big-endian) for integers
 const EXTRACT_UINT16 = (buffer, offset) => {
@@ -174,7 +76,7 @@ describe('CoordinationPackets', () => {
         expect(lengthRealA).to.be.lessThan(1 << 16).and.greaterThanOrEqual(0);
         expect(lengthNextA).to.be.lessThan(1 << 16).and.greaterThanOrEqual(0);
 
-        const typeB = buffer[OFFSET_TYPE];
+        const typeB = buffer[OFFSET_COORDINATION_TYPE];
         expect(typeA).to.equal(typeB);
 
         const lengthRealB = EXTRACT_UINT16(buffer, OFFSET_LENGTH_REAL);
@@ -184,11 +86,11 @@ describe('CoordinationPackets', () => {
 
         const keyB = buffer.subarray(
             OFFSET_KEY_DECRYPTION,
-            (OFFSET_KEY_DECRYPTION + LENGTH_KEY) | 0,
+            (OFFSET_KEY_DECRYPTION + LENGTH_KEY_SYMMETRIC) | 0,
         );
 
         let index = 0;
-        while (index < LENGTH_KEY) {
+        while (index < LENGTH_KEY_SYMMETRIC) {
 
             const keyDataA = keyA[index];
             const keyDataB = keyB[index];
@@ -203,8 +105,8 @@ describe('CoordinationPackets', () => {
         const checksumB = BUFFER_POLYNOMIAL_MODULUS(
             buffer,
             2, // offset where the dividend octets start
-            LENGTH_HEADER,
-            PACKET_CHECKSUM_MODULUS,
+            LENGTH_COORDINATION_HEADER,
+            MODULUS_PACKET_CHECKSUM,
         );
 
         expect(checksumA).to.equal(checksumB);
@@ -448,7 +350,7 @@ describe('CoordinationPackets', () => {
                 lengthNext: lengthNextA,
             } = text;
 
-            const binaryB = new Uint8Array(LENGTH_HEADER);
+            const binaryB = new Uint8Array(LENGTH_COORDINATION_HEADER);
 
             CoordinationPackets.format(text, binaryB);
 
@@ -461,7 +363,7 @@ describe('CoordinationPackets', () => {
             );
 
             let index = 0;
-            while (index < LENGTH_HEADER) {
+            while (index < LENGTH_COORDINATION_HEADER) {
 
                 expect(binaryA[index]).to.equal(binaryB[index]);
                 index = (index + 1) | 0;

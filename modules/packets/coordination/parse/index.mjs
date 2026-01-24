@@ -1,35 +1,74 @@
-const LENGTH_HEADER = 256; // octets, also known as "bytes"
-const LENGTH_IPV6_ADDRESS = 16; // octets, also known as "bytes"
-const LENGTH_KEY_DECRYPTION = 16; // octets, also known as "bytes"
-const LENGTH_REMAINDER = 8; // octets, also known as "bytes"
-const LENGTH_SHARED_SECRET = 16; // octets, also known as "bytes"
+import {
+    LENGTH_COORDINATION_HEADER,
+    LENGTH_HOST_IPV6,
+    LENGTH_KEY_DECRYPTION,
+    LENGTH_SHARED_REMAINDER,
+    LENGTH_SHARED_SECRET,
+
+    MODULUS_PACKET_CHECKSUM,
+
+    OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT,
+    OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_HOST,
+
+    OFFSET_COORDINATION_TYPE,
+
+    OFFSET_CHECKSUM,
+
+    OFFSET_FORWARD_IPV6_WEBSOCKET_PORT,
+    OFFSET_FORWARD_IPV6_WEBSOCKET_HOST,
+
+    OFFSET_KEY_DECRYPTION,
+
+    OFFSET_LENGTH_REAL,
+    OFFSET_LENGTH_NEXT,
+
+    OFFSET_POLYNOMIAL,
+
+    OFFSET_REMAINDER_DECRYPTION,
+    OFFSET_REMAINDER_ENCRYPTION,
+
+    OFFSET_REPLY_IPV6_PORT,
+    OFFSET_REPLY_IPV6_HOST,
+    OFFSET_REPLY_TYPE,
+
+    OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_PORT,
+    OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_HOST,
+
+    OFFSET_SHARED_SECRET_DECRYPTION,
+    OFFSET_SHARED_SECRET_ENCRYPTION,
+
+    OFFSET_SHIFT_DATA_AVERAGE,
+    OFFSET_SHIFT_DATA_TOTAL,
+    OFFSET_SHIFT_TIME_IDLE,
+    OFFSET_SHIFT_TIME_TOTAL,
+
+    REPLY_TYPE_IPV6_UDP,
+
+    TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET,
+    TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET,
+    TYPE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET,
+} from '../../../constants/index.mjs'
 
 ////////////////////////////////////////////////////////////////////////
 // POLYNOMIAL ARITHMETIC                                              //
 ////////////////////////////////////////////////////////////////////////
 
-// polynomial modulus for packet checksum
-// expression: x^17 + x^3 + 1
-// binary: 0b10000000000001001
-const PACKET_CHECKSUM_MODULUS = 0b10000000000001001;
-
 const POLYNOMIAL_DEGREE = (polynomial) => (31 - Math.clz32(polynomial)) | 0;
 
-const OFFSET_POLYNOMIAL = 2;
 const CALCULATE_HEADER_CHECKSUM = (buffer) => {
 
     let accumulator = 0;
     let index = OFFSET_POLYNOMIAL;
-    while (index < LENGTH_HEADER) {
+    while (index < LENGTH_COORDINATION_HEADER) {
 
         accumulator = (accumulator << 8) | buffer[index];
 
-        const degreeModulus = POLYNOMIAL_DEGREE(PACKET_CHECKSUM_MODULUS);
+        const degreeModulus = POLYNOMIAL_DEGREE(MODULUS_PACKET_CHECKSUM);
         let degreePolynomial = POLYNOMIAL_DEGREE(accumulator);
         while (degreePolynomial >= degreeModulus) {
 
             const shift = (degreePolynomial - degreeModulus) | 0;
-            const subtractor = PACKET_CHECKSUM_MODULUS << shift;
+            const subtractor = MODULUS_PACKET_CHECKSUM << shift;
             accumulator = accumulator ^ subtractor;
 
             degreePolynomial = POLYNOMIAL_DEGREE(accumulator);
@@ -45,46 +84,14 @@ const CALCULATE_HEADER_CHECKSUM = (buffer) => {
 };
 
 ////////////////////////////////////////////////////////////////////////
-// OFFSETS                                                            //
-////////////////////////////////////////////////////////////////////////
-
-const OFFSET_CHECKSUM                                           = 0;
-const OFFSET_TYPE                                               = 2;
-const OFFSET_REPLY_TYPE                                         = 3;
-const OFFSET_SHIFT_TIME_IDLE                                    = 4;
-const OFFSET_SHIFT_TIME_TOTAL                                   = 5;
-const OFFSET_SHIFT_DATA_AVERAGE                                 = 6;
-const OFFSET_SHIFT_DATA_TOTAL                                   = 7;
-const OFFSET_LENGTH_REAL                                        = 236;
-const OFFSET_LENGTH_NEXT                                        = 238;
-const OFFSET_KEY_DECRYPTION                                     = 240;
-
-const OFFSET_REPLY_IPV6_PORT                                    = 14;
-const OFFSET_REPLY_IPV6_HOST                                    = 32;
-
-const OFFSET_SHARED_SECRET_DECRYPTION                           = 48;
-const OFFSET_SHARED_SECRET_ENCRYPTION                           = 64;
-const OFFSET_REMAINDER_DECRYPTION                               = 80;
-const OFFSET_REMAINDER_ENCRYPTION                               = 88;
-
-const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT                  = 12;
-const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_ADDRESS               = 16;
-
-const OFFSET_FORWARD_IPV6_WEBSOCKET_PORT                        = 12;
-const OFFSET_FORWARD_IPV6_WEBSOCKET_ADDRESS                     = 16;
-
-const OFFSET_REDIRECT_IPV6_WEBSOCKET_PORT                       = 12;
-const OFFSET_REDIRECT_IPV6_WEBSOCKET_ADDRESS                    = 16;
-
-////////////////////////////////////////////////////////////////////////
 // MISCELLANEOUS HELPERS                                              //
 ////////////////////////////////////////////////////////////////////////
 
-const EXTRACT_IPV6_ADDRESS = (buffer, offset) => {
+const EXTRACT_IPV6_HOST = (buffer, offset) => {
 
     const chunks = [];
 
-    const limit = (offset + LENGTH_IPV6_ADDRESS) | 0;
+    const limit = (offset + LENGTH_HOST_IPV6) | 0;
     let index = offset;
     while (index < limit) {
 
@@ -122,24 +129,12 @@ const EXTRACT_UINT16 = (buffer, offset) => {
 };
 
 ////////////////////////////////////////////////////////////////////////
-// TYPES                                                              //
-////////////////////////////////////////////////////////////////////////
-
-const TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET                  = 2;
-
-const TYPE_COORDINATION_REDIRECT_IPV6_WEBSOCKET                 = 6;
-
-const TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET            = 14;
-
-const REPLY_TYPE_IPV6_UDP                                       = 3;
-
-////////////////////////////////////////////////////////////////////////
 // TYPE-SPECIFIC PARSE HELPERS                                        //
 ////////////////////////////////////////////////////////////////////////
 
 const PARSE_REPLY_IPV6 = (reply, binary) => {
 
-    const host = EXTRACT_IPV6_ADDRESS(binary, OFFSET_REPLY_IPV6_HOST);
+    const host = EXTRACT_IPV6_HOST(binary, OFFSET_REPLY_IPV6_HOST);
     const port = EXTRACT_UINT16(binary, OFFSET_REPLY_IPV6_PORT);
     reply.destination = { host, port };
 
@@ -165,7 +160,7 @@ const PARSE_REPLY = (binary, text) => {
 
 const PARSE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET = (binary, text) => {
 
-    const host = EXTRACT_IPV6_ADDRESS(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_ADDRESS);
+    const host = EXTRACT_IPV6_HOST(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_HOST);
     const port = EXTRACT_UINT16(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT);
     text.destination = { host, port };
 
@@ -173,22 +168,22 @@ const PARSE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET = (binary, text) => {
 
 const PARSE_COORDINATION_FORWARD_IPV6_WEBSOCKET = (binary, text) => {
 
-    const host = EXTRACT_IPV6_ADDRESS(binary, OFFSET_FORWARD_IPV6_WEBSOCKET_ADDRESS);
+    const host = EXTRACT_IPV6_HOST(binary, OFFSET_FORWARD_IPV6_WEBSOCKET_HOST);
     const port = EXTRACT_UINT16(binary, OFFSET_FORWARD_IPV6_WEBSOCKET_PORT);
     text.destination = { host, port };
 
 };
 
-const PARSE_COORDINATION_REDIRECT_IPV6_WEBSOCKET = (binary, text) => {
+const PARSE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET = (binary, text) => {
 
-    const host = EXTRACT_IPV6_ADDRESS(binary, OFFSET_REDIRECT_IPV6_WEBSOCKET_ADDRESS);
-    const port = EXTRACT_UINT16(binary, OFFSET_REDIRECT_IPV6_WEBSOCKET_PORT);
+    const host = EXTRACT_IPV6_HOST(binary, OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_HOST);
+    const port = EXTRACT_UINT16(binary, OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_PORT);
     text.destination = { host, port };
 
     const subarrayRemainderDecryption = EXTRACT_SUBARRAY(
         binary,
         OFFSET_REMAINDER_DECRYPTION,
-        LENGTH_REMAINDER,
+        LENGTH_SHARED_REMAINDER,
     );
 
     const subarraySharedSecretDecryption = EXTRACT_SUBARRAY(
@@ -203,7 +198,7 @@ const PARSE_COORDINATION_REDIRECT_IPV6_WEBSOCKET = (binary, text) => {
     const subarrayRemainderEncryption = EXTRACT_SUBARRAY(
         binary,
         OFFSET_REMAINDER_ENCRYPTION,
-        LENGTH_REMAINDER,
+        LENGTH_SHARED_REMAINDER,
     );
 
     const subarraySharedSecretEncryption = EXTRACT_SUBARRAY(
@@ -228,7 +223,7 @@ const parse = (binary) => {
 
     const text = {};
 
-    if (binary.length < LENGTH_HEADER) {
+    if (binary.length < LENGTH_COORDINATION_HEADER) {
 
         return null;
 
@@ -242,7 +237,7 @@ const parse = (binary) => {
 
     }
 
-    text.type = binary[OFFSET_TYPE];
+    text.type = binary[OFFSET_COORDINATION_TYPE];
     switch (text.type) {
 
         case TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET: {
@@ -259,9 +254,9 @@ const parse = (binary) => {
 
         }
 
-        case TYPE_COORDINATION_REDIRECT_IPV6_WEBSOCKET: {
+        case TYPE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET: {
 
-            PARSE_COORDINATION_REDIRECT_IPV6_WEBSOCKET(binary, text);
+            PARSE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET(binary, text);
             break;
 
         }
