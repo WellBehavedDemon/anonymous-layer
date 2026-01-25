@@ -3,6 +3,12 @@ import TwofishCryptography from '../cryptography/twofish/index.mjs';
 
 import { WebSocketServer, WebSocket } from 'ws';
 
+import {
+    EXTRACT_HOST_IPV6,
+    EXTRACT_SUBARRAY,
+    EXTRACT_UINT16,
+} from '../utilities/index.mjs'
+
 const LENGTH_HEADER = 256; // octets, also known as "bytes"
 const LENGTH_IPV6_ADDRESS = 16; // octets, also known as "bytes"
 const LENGTH_KEY = 256; // octets, also known as "bytes"
@@ -20,54 +26,13 @@ const OFFSET_FORWARD_IPV6_WEBSOCKET_ADDRESS                     = 16;
 
 const TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET                  = 2;
 
-// uses network byte order (big-endian) for integers
-const EXTRACT_UINT16 = (buffer, offset) => {
-
-    let accumulator = 0;
-    accumulator = accumulator | ((buffer[(offset + 0) | 0]) << 8);
-    accumulator = accumulator | ((buffer[(offset + 1) | 0]) << 0);
-
-    return accumulator;
-
-};
-
-const EXTRACT_IPV6_ADDRESS = (buffer, offset) => {
-
-    const chunks = [];
-
-    const limit = (offset + LENGTH_IPV6_ADDRESS) | 0;
-    let index = offset;
-    while (index < limit) {
-
-        let word = 0;
-        word = word | (buffer[index | 0] << 8);
-        word = word | (buffer[index | 1] << 0);
-
-        index = (index + 2) | 0;
-
-        const chunk = word.toString(16);
-        chunks.push(chunk);
-
-    }
-
-    const address = chunks.join(':');
-    return address;
-
-};
-
-const EXTRACT_SUBARRAY = (buffer, offset, length) => {
-
-    return buffer.subarray(offset, (offset + length) | 0);
-
-}
-
 ////////////////////////////////////////////////////////////////////////
 // HANDLERS FOR EACH MESSAGE TYPE                                     //
 ////////////////////////////////////////////////////////////////////////
 
 const HANDLE_COORDINATION_FORWARD_IPV6_WEBSOCKET = (message) => {
 
-    const remoteHost = EXTRACT_IPV6_ADDRESS(message, OFFSET_FORWARD_IPV6_WEBSOCKET_ADDRESS);
+    const remoteHost = EXTRACT_HOST_IPV6(message, OFFSET_FORWARD_IPV6_WEBSOCKET_ADDRESS);
     const remotePort = EXTRACT_UINT16(message, OFFSET_FORWARD_IPV6_WEBSOCKET_PORT);
 
     const sendMessage = (remoteHost, remotePort, packet) => {

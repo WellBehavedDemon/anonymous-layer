@@ -46,98 +46,11 @@ import {
     TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET,
 } from '../../../constants/index.mjs';
 
-////////////////////////////////////////////////////////////////////////
-// POLYNOMIAL ARITHMETIC                                              //
-////////////////////////////////////////////////////////////////////////
-
-const POLYNOMIAL_DEGREE = (polynomial) => (31 - Math.clz32(polynomial)) | 0;
-
-const CALCULATE_HEADER_CHECKSUM = (buffer) => {
-
-    let accumulator = 0;
-    let index = OFFSET_POLYNOMIAL;
-    while (index < LENGTH_COORDINATION_HEADER) {
-
-        accumulator = (accumulator << 8) | buffer[index];
-
-        const degreeModulus = POLYNOMIAL_DEGREE(MODULUS_PACKET_CHECKSUM);
-        let degreePolynomial = POLYNOMIAL_DEGREE(accumulator);
-        while (degreePolynomial >= degreeModulus) {
-
-            const shift = (degreePolynomial - degreeModulus) | 0;
-            const subtractor = MODULUS_PACKET_CHECKSUM << shift;
-            accumulator = accumulator ^ subtractor;
-
-            degreePolynomial = POLYNOMIAL_DEGREE(accumulator);
-
-        }
-
-        index = (index + 1) | 0;
-
-    }
-
-    return accumulator;
-
-};
-
-////////////////////////////////////////////////////////////////////////
-// MISCELLANEOUS HELPERS                                              //
-////////////////////////////////////////////////////////////////////////
-
-const INSERT_UINT16 = (binary, offset, integer) => {
-
-    binary[(offset + 0) | 0] = (integer >> 8) & 0xFF;
-    binary[(offset + 1) | 0] = (integer >> 0) & 0xFF;
-
-};
-
-const INSERT_IPV6 = (binary, offset, address) => {
-
-    binary.fill(0, offset, (offset + LENGTH_HOST_IPV6) | 0);
-
-    const [partA, partB] = address.split('::');
-
-    if (partA) {
-
-        const chunks = partA.split(':');
-        let subOffset = offset;
-
-        const { length } = chunks;
-        let index = 0;
-        while (index < length) {
-
-            const chunk = chunks[index];
-            const integer = Number.parseInt(chunk, 16);
-            INSERT_UINT16(binary, subOffset, integer);
-
-            index = (index + 1) | 0;
-            subOffset = (subOffset + 2) | 0;
-
-        }
-
-    }
-
-    if (partB) {
-
-        const chunks = partB.split(':');
-        let subOffset = (offset + LENGTH_HOST_IPV6) | 0;
-
-        const { length } = chunks;
-        let index = length;
-        while (index > 0) {
-
-            index = (index - 1) | 0;
-            subOffset = (subOffset - 2) | 0;
-
-            const chunk = chunks[index];
-            const integer = Number.parseInt(chunk, 16);
-            INSERT_UINT16(binary, subOffset, integer);
-
-        }
-
-    }
-
-};
+import {
+    INSERT_HOST_IPV6,
+    INSERT_UINT16,
+    POLYNOMIAL_HEADER_CHECKSUM,
+} from '../../../utilities/index.mjs';
 
 ////////////////////////////////////////////////////////////////////////
 // TYPE-SPECIFIC FORMAT HELPERS                                       //
@@ -149,7 +62,7 @@ const FORMAT_REPLY_IPV6 = (reply, binary) => {
     const { host, port } = destination;
 
     INSERT_UINT16(binary, OFFSET_REPLY_IPV6_PORT, port);
-    INSERT_IPV6(binary, OFFSET_REPLY_IPV6_HOST, host);
+    INSERT_HOST_IPV6(binary, OFFSET_REPLY_IPV6_HOST, host);
 
 };
 
@@ -177,7 +90,7 @@ const FORMAT_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET = (text, binary) => {
     const { host, port } = destination;
 
     INSERT_UINT16(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT, port);
-    INSERT_IPV6(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_HOST, host);
+    INSERT_HOST_IPV6(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_HOST, host);
 
 };
 
@@ -187,7 +100,7 @@ const FORMAT_COORDINATION_FORWARD_IPV6_WEBSOCKET = (text, binary) => {
     const { host, port } = destination;
 
     INSERT_UINT16(binary, OFFSET_FORWARD_IPV6_WEBSOCKET_PORT, port);
-    INSERT_IPV6(binary, OFFSET_FORWARD_IPV6_WEBSOCKET_HOST, host);
+    INSERT_HOST_IPV6(binary, OFFSET_FORWARD_IPV6_WEBSOCKET_HOST, host);
 
 };
 
@@ -197,7 +110,7 @@ const FORMAT_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET = (text, binary) => {
     const { host, port } = destination;
 
     INSERT_UINT16(binary, OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_PORT, port);
-    INSERT_IPV6(binary, OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_HOST, host);
+    INSERT_HOST_IPV6(binary, OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_HOST, host);
 
     const { sharedSecretDecryption, remainderDecryption } = text;
     binary.set(sharedSecretDecryption, OFFSET_SHARED_SECRET_DECRYPTION);
@@ -259,7 +172,7 @@ const format = (text, binary) => {
 
     }
 
-    const checksum = CALCULATE_HEADER_CHECKSUM(binary);
+    const checksum = POLYNOMIAL_HEADER_CHECKSUM(binary);
     INSERT_UINT16(binary, OFFSET_CHECKSUM, checksum);
 
 };

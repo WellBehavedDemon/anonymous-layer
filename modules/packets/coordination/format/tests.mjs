@@ -23,49 +23,12 @@ import {
     TYPE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET,
 } from '../../../constants/index.mjs';
 
-// uses network byte order (big-endian) for integers
-const EXTRACT_UINT16 = (buffer, offset) => {
-
-    let accumulator = 0;
-    accumulator = accumulator | ((buffer[(offset + 0) | 0]) << 8);
-    accumulator = accumulator | ((buffer[(offset + 1) | 0]) << 0);
-
-    return accumulator;
-
-};
+import {
+    EXTRACT_UINT16,
+    POLYNOMIAL_MODULUS_BUFFER,
+} from '../../../utilities/index.mjs';
 
 describe('CoordinationPackets', () => {
-
-    const POLYNOMIAL_DEGREE = (polynomial) => (31 - Math.clz32(polynomial)) | 0;
-
-    const BUFFER_POLYNOMIAL_MODULUS = (buffer, offset, length, modulus) => {
-
-        const degreeModulus = POLYNOMIAL_DEGREE(modulus);
-
-        let accumulator = 0;
-        let index = offset;
-        while (index < length) {
-
-            accumulator = (accumulator << 8) | buffer[index];
-
-            let degreePolynomial = POLYNOMIAL_DEGREE(accumulator);
-            while (degreePolynomial >= degreeModulus) {
-
-                const shift = (degreePolynomial - degreeModulus) | 0;
-                const subtractor = modulus << shift;
-                accumulator = accumulator ^ subtractor;
-
-                degreePolynomial = POLYNOMIAL_DEGREE(accumulator);
-
-            }
-
-            index = (index + 1) | 0;
-
-        }
-
-        return accumulator;
-
-    };
 
     const COMMON_HEADER_CHECK = (buffer, typeA, keyA, lengthRealA, lengthNextA) => {
 
@@ -102,7 +65,7 @@ describe('CoordinationPackets', () => {
 
         const checksumA = EXTRACT_UINT16(buffer, OFFSET_CHECKSUM);
 
-        const checksumB = BUFFER_POLYNOMIAL_MODULUS(
+        const checksumB = POLYNOMIAL_MODULUS_BUFFER(
             buffer,
             2, // offset where the dividend octets start
             LENGTH_COORDINATION_HEADER,

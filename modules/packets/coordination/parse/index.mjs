@@ -1,11 +1,8 @@
 import {
     LENGTH_COORDINATION_HEADER,
-    LENGTH_HOST_IPV6,
     LENGTH_KEY_DECRYPTION,
     LENGTH_SHARED_REMAINDER,
     LENGTH_SHARED_SECRET,
-
-    MODULUS_PACKET_CHECKSUM,
 
     OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT,
     OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_HOST,
@@ -21,8 +18,6 @@ import {
 
     OFFSET_LENGTH_REAL,
     OFFSET_LENGTH_NEXT,
-
-    OFFSET_POLYNOMIAL,
 
     OFFSET_REMAINDER_DECRYPTION,
     OFFSET_REMAINDER_ENCRYPTION,
@@ -49,84 +44,12 @@ import {
     TYPE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET,
 } from '../../../constants/index.mjs'
 
-////////////////////////////////////////////////////////////////////////
-// POLYNOMIAL ARITHMETIC                                              //
-////////////////////////////////////////////////////////////////////////
-
-const POLYNOMIAL_DEGREE = (polynomial) => (31 - Math.clz32(polynomial)) | 0;
-
-const CALCULATE_HEADER_CHECKSUM = (buffer) => {
-
-    let accumulator = 0;
-    let index = OFFSET_POLYNOMIAL;
-    while (index < LENGTH_COORDINATION_HEADER) {
-
-        accumulator = (accumulator << 8) | buffer[index];
-
-        const degreeModulus = POLYNOMIAL_DEGREE(MODULUS_PACKET_CHECKSUM);
-        let degreePolynomial = POLYNOMIAL_DEGREE(accumulator);
-        while (degreePolynomial >= degreeModulus) {
-
-            const shift = (degreePolynomial - degreeModulus) | 0;
-            const subtractor = MODULUS_PACKET_CHECKSUM << shift;
-            accumulator = accumulator ^ subtractor;
-
-            degreePolynomial = POLYNOMIAL_DEGREE(accumulator);
-
-        }
-
-        index = (index + 1) | 0;
-
-    }
-
-    return accumulator;
-
-};
-
-////////////////////////////////////////////////////////////////////////
-// MISCELLANEOUS HELPERS                                              //
-////////////////////////////////////////////////////////////////////////
-
-const EXTRACT_IPV6_HOST = (buffer, offset) => {
-
-    const chunks = [];
-
-    const limit = (offset + LENGTH_HOST_IPV6) | 0;
-    let index = offset;
-    while (index < limit) {
-
-        let word = 0;
-        word = word | (buffer[index | 0] << 8);
-        word = word | (buffer[index | 1] << 0);
-
-        index = (index + 2) | 0;
-
-        const chunk = word.toString(16).padStart(4, '0');
-        chunks.push(chunk);
-
-    }
-
-    const address = chunks.join(':');
-    return address;
-
-};
-
-const EXTRACT_SUBARRAY = (buffer, offset, length) => {
-
-    return buffer.subarray(offset, (offset + length) | 0);
-
-}
-
-// uses network byte order (big-endian) for integers
-const EXTRACT_UINT16 = (buffer, offset) => {
-
-    let accumulator = 0;
-    accumulator = accumulator | ((buffer[(offset + 0) | 0]) << 8);
-    accumulator = accumulator | ((buffer[(offset + 1) | 0]) << 0);
-
-    return accumulator;
-
-};
+import {
+    EXTRACT_HOST_IPV6,
+    EXTRACT_SUBARRAY,
+    EXTRACT_UINT16,
+    POLYNOMIAL_HEADER_CHECKSUM,
+} from '../../../utilities/index.mjs';
 
 ////////////////////////////////////////////////////////////////////////
 // TYPE-SPECIFIC PARSE HELPERS                                        //
@@ -134,7 +57,7 @@ const EXTRACT_UINT16 = (buffer, offset) => {
 
 const PARSE_REPLY_IPV6 = (reply, binary) => {
 
-    const host = EXTRACT_IPV6_HOST(binary, OFFSET_REPLY_IPV6_HOST);
+    const host = EXTRACT_HOST_IPV6(binary, OFFSET_REPLY_IPV6_HOST);
     const port = EXTRACT_UINT16(binary, OFFSET_REPLY_IPV6_PORT);
     reply.destination = { host, port };
 
@@ -160,7 +83,7 @@ const PARSE_REPLY = (binary, text) => {
 
 const PARSE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET = (binary, text) => {
 
-    const host = EXTRACT_IPV6_HOST(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_HOST);
+    const host = EXTRACT_HOST_IPV6(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_HOST);
     const port = EXTRACT_UINT16(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT);
     text.destination = { host, port };
 
@@ -168,7 +91,7 @@ const PARSE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET = (binary, text) => {
 
 const PARSE_COORDINATION_FORWARD_IPV6_WEBSOCKET = (binary, text) => {
 
-    const host = EXTRACT_IPV6_HOST(binary, OFFSET_FORWARD_IPV6_WEBSOCKET_HOST);
+    const host = EXTRACT_HOST_IPV6(binary, OFFSET_FORWARD_IPV6_WEBSOCKET_HOST);
     const port = EXTRACT_UINT16(binary, OFFSET_FORWARD_IPV6_WEBSOCKET_PORT);
     text.destination = { host, port };
 
@@ -176,7 +99,7 @@ const PARSE_COORDINATION_FORWARD_IPV6_WEBSOCKET = (binary, text) => {
 
 const PARSE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET = (binary, text) => {
 
-    const host = EXTRACT_IPV6_HOST(binary, OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_HOST);
+    const host = EXTRACT_HOST_IPV6(binary, OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_HOST);
     const port = EXTRACT_UINT16(binary, OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_PORT);
     text.destination = { host, port };
 
@@ -230,7 +153,7 @@ const parse = (binary) => {
     }
 
     const checksumA = EXTRACT_UINT16(binary, OFFSET_CHECKSUM);
-    const checksumB = CALCULATE_HEADER_CHECKSUM(binary);
+    const checksumB = POLYNOMIAL_HEADER_CHECKSUM(binary);
     if (checksumA !== checksumB) {
 
         return null;
