@@ -4,27 +4,27 @@ import TwofishCryptography from '../cryptography/twofish/index.mjs';
 import { WebSocketServer, WebSocket } from 'ws';
 
 import {
+    LENGTH_COORDINATION_HEADER,
+    LENGTH_COORDINATION_KEY,
+
+    OFFSET_COORDINATION_HEADER,
+    OFFSET_COORDINATION_TYPE,
+    OFFSET_FORWARD_IPV6_WEBSOCKET_PORT,
+    OFFSET_FORWARD_IPV6_WEBSOCKET_HOST,
+    OFFSET_KEY_DECRYPTION,
+    OFFSET_LENGTH_REAL,
+
+    TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET,
+} from '../constants/index.mjs';
+
+import {
     EXTRACT_HOST_IPV6,
     EXTRACT_SUBARRAY,
     EXTRACT_UINT16,
 } from '../utilities/index.mjs'
 
-const LENGTH_HEADER = 256; // octets, also known as "bytes"
-const LENGTH_IPV6_ADDRESS = 16; // octets, also known as "bytes"
-const LENGTH_KEY = 256; // octets, also known as "bytes"
-
-const OFFSET_HEADER = 0;
-const OFFSET_KEY_SENDER = LENGTH_HEADER;
-const OFFSET_DATA_START = LENGTH_HEADER + LENGTH_KEY;
-
-const OFFSET_TYPE                                               = 2;
-const OFFSET_LENGTH_REAL                                        = 236;
-const OFFSET_KEY_DECRYPTION                                     = 240;
-
-const OFFSET_FORWARD_IPV6_WEBSOCKET_PORT                        = 12;
-const OFFSET_FORWARD_IPV6_WEBSOCKET_ADDRESS                     = 16;
-
-const TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET                  = 2;
+const OFFSET_KEY_SENDER = LENGTH_COORDINATION_HEADER;
+const OFFSET_DATA_START = LENGTH_COORDINATION_HEADER + LENGTH_COORDINATION_KEY;
 
 ////////////////////////////////////////////////////////////////////////
 // HANDLERS FOR EACH MESSAGE TYPE                                     //
@@ -32,7 +32,7 @@ const TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET                  = 2;
 
 const HANDLE_COORDINATION_FORWARD_IPV6_WEBSOCKET = (message) => {
 
-    const remoteHost = EXTRACT_HOST_IPV6(message, OFFSET_FORWARD_IPV6_WEBSOCKET_ADDRESS);
+    const remoteHost = EXTRACT_HOST_IPV6(message, OFFSET_FORWARD_IPV6_WEBSOCKET_HOST);
     const remotePort = EXTRACT_UINT16(message, OFFSET_FORWARD_IPV6_WEBSOCKET_PORT);
 
     const sendMessage = (remoteHost, remotePort, packet) => {
@@ -83,9 +83,9 @@ const CREATE_COORDINATION_SERVER_WEBSOCKET = (options) => {
 
         socket.on('message', (message) => {
 
-            const keySender = EXTRACT_SUBARRAY(message, OFFSET_KEY_SENDER, LENGTH_KEY);
-            const textPlainA = new Uint8Array(LENGTH_KEY);
-            const textCipherA = message.subarray(0, LENGTH_HEADER);
+            const keySender = EXTRACT_SUBARRAY(message, OFFSET_KEY_SENDER, LENGTH_COORDINATION_KEY);
+            const textPlainA = new Uint8Array(LENGTH_COORDINATION_KEY);
+            const textCipherA = message.subarray(0, LENGTH_COORDINATION_HEADER);
             ElGamalCryptography.decrypt2048(
                 exponent,
                 keySender,
@@ -93,7 +93,7 @@ const CREATE_COORDINATION_SERVER_WEBSOCKET = (options) => {
                 textPlainA,
             );
 
-            message.set(textPlainA, OFFSET_HEADER);
+            message.set(textPlainA, OFFSET_COORDINATION_HEADER);
 
             const lengthData = EXTRACT_UINT16(textPlainA, OFFSET_LENGTH_REAL);
 
@@ -104,7 +104,7 @@ const CREATE_COORDINATION_SERVER_WEBSOCKET = (options) => {
 
             message.set(textPlainB, OFFSET_DATA_START);
 
-            const type = message[OFFSET_TYPE];
+            const type = message[OFFSET_COORDINATION_TYPE];
             switch (type) {
 
                 case TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET: {
