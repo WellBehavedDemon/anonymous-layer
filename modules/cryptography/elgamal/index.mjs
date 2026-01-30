@@ -104,7 +104,7 @@ const OUTPUT_BITS2048 = (integer, buffer) => {
 
 };
 
-const encrypt2048 = (
+export const encrypt2048 = (
     bufferKeyPublic,
     bufferExponentSender,
     bufferTextPlain,
@@ -121,7 +121,7 @@ const encrypt2048 = (
 
 };
 
-const decrypt2048 = (
+export const decrypt2048 = (
     bufferExponentPrivate,
     bufferKeySender,
     bufferTextCipher,
@@ -136,7 +136,7 @@ const decrypt2048 = (
 
 };
 
-const calculateKey2048 = (bufferExponent, bufferKey) => {
+export const calculateKey2048 = (bufferExponent, bufferKey) => {
 
     const exponent = INPUT_BITS2048(bufferExponent);
     const key = CALCULATE_KEY(exponent);

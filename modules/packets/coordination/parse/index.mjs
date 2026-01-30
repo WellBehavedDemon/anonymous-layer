@@ -142,7 +142,7 @@ const PARSE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET = (binary, text) => {
 
 };
 
-const parse = (binary) => {
+export const parse = (binary) => {
 
     const text = {};
 

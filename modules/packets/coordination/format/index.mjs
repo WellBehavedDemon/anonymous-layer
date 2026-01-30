@@ -137,7 +137,7 @@ const FORMAT_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET = (text, binary) => {
 // EXPORTED PROCEDURES                                                //
 ////////////////////////////////////////////////////////////////////////
 
-const format = (text, binary) => {
+export const format = (text, binary) => {
 
     const { type, key, lengthReal, lengthNext } = text;
 

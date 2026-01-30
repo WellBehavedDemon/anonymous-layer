@@ -133,7 +133,7 @@ const CREATE_COORDINATION_SERVER_WEBSOCKET = (options, onPacket) => {
 
 };
 
-const createServer = (options) => {
+export const createServer = (options) => {
 
     RandomGenerator.seed(performance.now() | 0);
 
