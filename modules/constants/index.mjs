@@ -80,6 +80,7 @@ export const OFFSET_SHARED_SECRET_DECRYPTION                    = 48;
 export const OFFSET_SHARED_SECRET_ENCRYPTION                    = 64;
 export const OFFSET_REMAINDER_DECRYPTION                        = 80;
 export const OFFSET_REMAINDER_ENCRYPTION                        = 88;
+export const OFFSET_KEY_COLOR_CHANGE                            = 96;
 
 export const OFFSET_COORDINATION_HEADER                         = 0;
 export const OFFSET_COORDINAITION_KEY_SENDER                    = 256;

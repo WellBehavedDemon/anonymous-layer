@@ -12,6 +12,7 @@ import {
     OFFSET_FORWARD_IPV6_WEBSOCKET_PORT,
     OFFSET_FORWARD_IPV6_WEBSOCKET_HOST,
 
+    OFFSET_KEY_COLOR_CHANGE,
     OFFSET_KEY_DECRYPTION,
 
     OFFSET_LENGTH_REAL,
@@ -119,6 +120,9 @@ const FORMAT_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET = (text, binary) => {
     const { sharedSecretEncryption, remainderEncryption } = text;
     binary.set(sharedSecretEncryption, OFFSET_SHARED_SECRET_ENCRYPTION);
     binary.set(remainderEncryption, OFFSET_REMAINDER_ENCRYPTION);
+
+    const { keyColorChange } = text;
+    binary.set(keyColorChange, OFFSET_KEY_COLOR_CHANGE);
 
     const { shiftTimeIdle, shiftTimeTotal } = text;
     binary[OFFSET_SHIFT_TIME_IDLE] = shiftTimeIdle;

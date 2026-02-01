@@ -1,6 +1,7 @@
 import {
     LENGTH_COORDINATION_HEADER,
     LENGTH_KEY_DECRYPTION,
+    LENGTH_KEY_SYMMETRIC,
     LENGTH_SHARED_REMAINDER,
     LENGTH_SHARED_SECRET,
 
@@ -14,6 +15,7 @@ import {
     OFFSET_FORWARD_IPV6_WEBSOCKET_PORT,
     OFFSET_FORWARD_IPV6_WEBSOCKET_HOST,
 
+    OFFSET_KEY_COLOR_CHANGE,
     OFFSET_KEY_DECRYPTION,
 
     OFFSET_LENGTH_REAL,
@@ -132,6 +134,14 @@ const PARSE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET = (binary, text) => {
 
     text.sharedSecretEncryption = new Uint8Array(subarraySharedSecretEncryption);
     text.remainderEncryption = new Uint8Array(subarrayRemainderEncryption);
+
+    const subarrayKeyColorChange = EXTRACT_SUBARRAY(
+        binary,
+        OFFSET_KEY_COLOR_CHANGE,
+        LENGTH_KEY_SYMMETRIC,
+    );
+
+    text.keyColorChange = new Uint8Array(subarrayKeyColorChange);
 
     text.shiftTimeIdle = binary[OFFSET_SHIFT_TIME_IDLE];
     text.shiftTimeTotal = binary[OFFSET_SHIFT_TIME_TOTAL];
