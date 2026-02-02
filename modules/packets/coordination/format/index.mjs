@@ -42,6 +42,8 @@ import {
 
     REPLY_TYPE_IPV6_UDP,
 
+    TYPE_COORDINATION_FASTER_LINK_GRANT,
+    TYPE_COORDINATION_FASTER_LINK_PLEAD,
     TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET,
     TYPE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET,
     TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET,
@@ -92,6 +94,39 @@ const FORMAT_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET = (text, binary) => {
 
     INSERT_UINT16(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT, port);
     INSERT_HOST_IPV6(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_HOST, host);
+
+};
+
+const FORMAT_COORDINATION_FASTER_LINK_GRANT = (text, binary) => {
+
+    const { destination } = text;
+    const { host, port } = destination;
+
+    INSERT_UINT16(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT, port);
+    INSERT_HOST_IPV6(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_HOST, host);
+
+};
+
+const FORMAT_COORDINATION_FASTER_LINK_PLEAD = (text, binary) => {
+
+    const { sharedSecretDecryption, remainderDecryption } = text;
+    binary.set(sharedSecretDecryption, OFFSET_SHARED_SECRET_DECRYPTION);
+    binary.set(remainderDecryption, OFFSET_REMAINDER_DECRYPTION);
+
+    const { sharedSecretEncryption, remainderEncryption } = text;
+    binary.set(sharedSecretEncryption, OFFSET_SHARED_SECRET_ENCRYPTION);
+    binary.set(remainderEncryption, OFFSET_REMAINDER_ENCRYPTION);
+
+    const { shiftTimeIdle, shiftTimeTotal } = text;
+    binary[OFFSET_SHIFT_TIME_IDLE] = shiftTimeIdle;
+    binary[OFFSET_SHIFT_TIME_TOTAL] = shiftTimeTotal;
+
+    const { shiftDataAverage, shiftDataTotal } = text;
+    binary[OFFSET_SHIFT_DATA_AVERAGE] = shiftDataAverage;
+    binary[OFFSET_SHIFT_DATA_TOTAL] = shiftDataTotal;
+
+    const { reply } = text;
+    FORMAT_REPLY(reply, binary);
 
 };
 
@@ -156,6 +191,20 @@ export const format = (text, binary) => {
         case TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET: {
 
             FORMAT_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET(text, binary);
+            break;
+
+        }
+
+        case TYPE_COORDINATION_FASTER_LINK_GRANT: {
+
+            FORMAT_COORDINATION_FASTER_LINK_GRANT(text, binary);
+            break;
+
+        }
+
+        case TYPE_COORDINATION_FASTER_LINK_PLEAD: {
+
+            FORMAT_COORDINATION_FASTER_LINK_PLEAD(text, binary);
             break;
 
         }
