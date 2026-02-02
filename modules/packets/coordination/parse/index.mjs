@@ -42,6 +42,8 @@ import {
     REPLY_TYPE_IPV6_UDP,
 
     TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET,
+    TYPE_COORDINATION_FASTER_LINK_GRANT,
+    TYPE_COORDINATION_FASTER_LINK_PLEAD,
     TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET,
     TYPE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET,
 } from '../../../constants/index.mjs'
@@ -88,6 +90,53 @@ const PARSE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET = (binary, text) => {
     const host = EXTRACT_HOST_IPV6(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_HOST);
     const port = EXTRACT_UINT16(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT);
     text.destination = { host, port };
+
+};
+
+const PARSE_COORDINATION_FASTER_LINK_GRANT = (binary, text) => {
+
+    PARSE_REPLY(binary, text);
+
+};
+
+const PARSE_COORDINATION_FASTER_LINK_PLEAD = (binary, text) => {
+
+    const subarrayRemainderDecryption = EXTRACT_SUBARRAY(
+        binary,
+        OFFSET_REMAINDER_DECRYPTION,
+        LENGTH_SHARED_REMAINDER,
+    );
+
+    const subarraySharedSecretDecryption = EXTRACT_SUBARRAY(
+        binary,
+        OFFSET_SHARED_SECRET_DECRYPTION,
+        LENGTH_SHARED_SECRET,
+    );
+
+    text.sharedSecretDecryption = new Uint8Array(subarraySharedSecretDecryption);
+    text.remainderDecryption = new Uint8Array(subarrayRemainderDecryption);
+
+    const subarrayRemainderEncryption = EXTRACT_SUBARRAY(
+        binary,
+        OFFSET_REMAINDER_ENCRYPTION,
+        LENGTH_SHARED_REMAINDER,
+    );
+
+    const subarraySharedSecretEncryption = EXTRACT_SUBARRAY(
+        binary,
+        OFFSET_SHARED_SECRET_ENCRYPTION,
+        LENGTH_SHARED_SECRET,
+    );
+
+    text.sharedSecretEncryption = new Uint8Array(subarraySharedSecretEncryption);
+    text.remainderEncryption = new Uint8Array(subarrayRemainderEncryption);
+
+    text.shiftTimeIdle = binary[OFFSET_SHIFT_TIME_IDLE];
+    text.shiftTimeTotal = binary[OFFSET_SHIFT_TIME_TOTAL];
+    text.shiftDataAverage = binary[OFFSET_SHIFT_DATA_AVERAGE];
+    text.shiftDataTotal = binary[OFFSET_SHIFT_DATA_TOTAL];
+
+    PARSE_REPLY(binary, text);
 
 };
 
@@ -176,6 +225,20 @@ export const parse = (binary) => {
         case TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET: {
 
             PARSE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET(binary, text);
+            break;
+
+        }
+
+        case TYPE_COORDINATION_FASTER_LINK_PLEAD: {
+
+            PARSE_COORDINATION_FASTER_LINK_PLEAD(binary, text);
+            break;
+
+        }
+
+        case TYPE_COORDINATION_FASTER_LINK_GRANT: {
+
+            PARSE_COORDINATION_FASTER_LINK_GRANT(binary, text);
             break;
 
         }
