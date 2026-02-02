@@ -99,11 +99,8 @@ const FORMAT_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET = (text, binary) => {
 
 const FORMAT_COORDINATION_FASTER_LINK_GRANT = (text, binary) => {
 
-    const { destination } = text;
-    const { host, port } = destination;
-
-    INSERT_UINT16(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT, port);
-    INSERT_HOST_IPV6(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_HOST, host);
+    const { reply } = text;
+    FORMAT_REPLY(reply, binary);
 
 };
 
