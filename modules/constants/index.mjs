@@ -164,6 +164,11 @@ export const TYPE_COORDINATION_ANNOUNCE_PEER_IPV4_UDP           = 13;
 export const TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET     = 14;
 export const TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_UDP           = 15;
 
+export const TYPE_COORDINATION_FASTER_LINK_PLEAD                = 16;
+export const TYPE_COORDINATION_FASTER_LINK_GRANT                = 17;
+export const TYPE_COORDINATION_FASTER_LINK_TRADE                = 18;
+export const TYPE_COORDINATION_FASTER_LINK_CHECK                = 19;
+
 export const REPLY_TYPE_IPV4_WEBSOCKET                          = 0;
 export const REPLY_TYPE_IPV4_UDP                                = 1;
 export const REPLY_TYPE_IPV6_WEBSOCKET                          = 2;
