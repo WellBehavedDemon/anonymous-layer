@@ -40,6 +40,7 @@ import {
     OFFSET_SHIFT_TIME_TOTAL,
 
     REPLY_TYPE_IPV6_UDP,
+    REPLY_TYPE_IPV6_WEBSOCKET,
 
     TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET,
     TYPE_COORDINATION_FASTER_LINK_GRANT,
@@ -74,6 +75,7 @@ const PARSE_REPLY = (binary, text) => {
 
     switch (text.reply.type) {
 
+        case REPLY_TYPE_IPV6_WEBSOCKET:
         case REPLY_TYPE_IPV6_UDP: {
 
             PARSE_REPLY_IPV6(text.reply, binary);
