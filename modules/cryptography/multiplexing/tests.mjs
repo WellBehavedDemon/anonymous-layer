@@ -2,6 +2,7 @@ import MultiplexingCryptography from "./index.mjs";
 import RandomGenerator from '../../random/index.mjs';
 
 import {
+    LENGHT_HANDSHAKE,
     LENGTH_SHARED_REMAINDER,
     LENGTH_SHARED_SECRET,
     MODULUS_SHARED_SECRET,
@@ -138,6 +139,31 @@ describe('MultiplexingCryptography', () => {
 
         TEST_CASES_TRIVIAL();
         TEST_CASES_RANDOM();
+
+    });
+
+    it('should generate handshakes for a given shared secret and remainder', () => {
+
+        RandomGenerator.seed(performance.now() | 0);
+
+        const sharedSecret = new Uint8Array(LENGTH_SHARED_SECRET);
+        const remainder = new Uint8Array(LENGTH_SHARED_REMAINDER);
+        const handshake = new Uint8Array(LENGHT_HANDSHAKE);
+
+        let count = 0;
+        while (count < LIMIT_TESTS_RANDOM) {
+
+            RandomGenerator.fill(sharedSecret);
+            RandomGenerator.fill(remainder);
+
+            MultiplexingCryptography.generate(sharedSecret, remainder, handshake);
+
+            const result = MultiplexingCryptography.match(sharedSecret, remainder, handshake);
+            expect(result).to.be.equal(true);
+
+            count = (count + 1) | 0;
+
+        }
 
     });
 
