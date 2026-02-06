@@ -1,18 +1,13 @@
 import {
-    LENGTH_COORDINATION_HEADER,
-    LENGTH_HOST_IPV6,
-
-    MODULUS_PACKET_CHECKSUM,
-
-    OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_HOST,
-    OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT,
+    OFFSET_ADDRESS_TARGET_IPV6_HOST,
+    OFFSET_ADDRESS_TARGET_IPV6_PORT,
+    OFFSET_ADDRESS_REPLY_IPV6_HOST,
+    OFFSET_ADDRESS_REPLY_IPV6_PORT,
+    OFFSET_ADDRESS_TYPE,
 
     OFFSET_CHECKSUM,
 
     OFFSET_COORDINATION_TYPE,
-
-    OFFSET_FORWARD_IPV6_WEBSOCKET_PORT,
-    OFFSET_FORWARD_IPV6_WEBSOCKET_HOST,
 
     OFFSET_KEY_COLOR_CHANGE,
     OFFSET_KEY_DECRYPTION,
@@ -20,17 +15,8 @@ import {
     OFFSET_LENGTH_REAL,
     OFFSET_LENGTH_NEXT,
 
-    OFFSET_POLYNOMIAL,
-
-    OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_HOST,
-    OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_PORT,
-
     OFFSET_REMAINDER_DECRYPTION,
     OFFSET_REMAINDER_ENCRYPTION,
-
-    OFFSET_REPLY_IPV6_HOST,
-    OFFSET_REPLY_IPV6_PORT,
-    OFFSET_REPLY_TYPE,
 
     OFFSET_SHIFT_DATA_AVERAGE,
     OFFSET_SHIFT_DATA_TOTAL,
@@ -40,14 +26,13 @@ import {
     OFFSET_SHARED_SECRET_DECRYPTION,
     OFFSET_SHARED_SECRET_ENCRYPTION,
 
-    REPLY_TYPE_IPV6_UDP,
-    REPLY_TYPE_IPV6_WEBSOCKET,
-
+    TYPE_COORDINATION_ANNOUNCE_PEER,
     TYPE_COORDINATION_FASTER_LINK_GRANT,
     TYPE_COORDINATION_FASTER_LINK_PLEAD,
-    TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET,
-    TYPE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET,
-    TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET,
+    TYPE_COORDINATION_FORWARD,
+    TYPE_COORDINATION_REDIRECT_STATIC,
+    TYPE_ADDRESS_IPV6_UDP,
+    TYPE_ADDRESS_IPV6_WEBSOCKET,
 } from '../../../constants/index.mjs';
 
 import {
@@ -65,20 +50,20 @@ const FORMAT_REPLY_IPV6 = (reply, binary) => {
     const { destination } = reply;
     const { host, port } = destination;
 
-    INSERT_UINT16(binary, OFFSET_REPLY_IPV6_PORT, port);
-    INSERT_HOST_IPV6(binary, OFFSET_REPLY_IPV6_HOST, host);
+    INSERT_UINT16(binary, OFFSET_ADDRESS_REPLY_IPV6_PORT, port);
+    INSERT_HOST_IPV6(binary, OFFSET_ADDRESS_REPLY_IPV6_HOST, host);
 
 };
 
 const FORMAT_REPLY = (reply, binary) => {
 
     const { type } = reply;
-    binary[OFFSET_REPLY_TYPE] = type;
+    binary[OFFSET_ADDRESS_TYPE] = (binary[OFFSET_ADDRESS_TYPE] & 0xF0) | (type << 0);
 
     switch (type) {
 
-        case REPLY_TYPE_IPV6_WEBSOCKET:
-        case REPLY_TYPE_IPV6_UDP: {
+        case TYPE_ADDRESS_IPV6_UDP:
+        case TYPE_ADDRESS_IPV6_WEBSOCKET: {
 
             FORMAT_REPLY_IPV6(reply, binary);
             break;
@@ -89,13 +74,39 @@ const FORMAT_REPLY = (reply, binary) => {
 
 };
 
-const FORMAT_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET = (text, binary) => {
+const FORMAT_TARGET_IPV6 = (target, binary) => {
 
-    const { destination } = text;
+    const { destination } = target;
     const { host, port } = destination;
 
-    INSERT_UINT16(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT, port);
-    INSERT_HOST_IPV6(binary, OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_HOST, host);
+    INSERT_UINT16(binary, OFFSET_ADDRESS_TARGET_IPV6_PORT, port);
+    INSERT_HOST_IPV6(binary, OFFSET_ADDRESS_TARGET_IPV6_HOST, host);
+
+};
+
+const FORMAT_TARGET = (target, binary) => {
+
+    const { type } = target;
+    binary[OFFSET_ADDRESS_TYPE] = (binary[OFFSET_ADDRESS_TYPE] & 0x0F) | (type << 4);
+
+    switch (type) {
+
+        case TYPE_ADDRESS_IPV6_UDP:
+        case TYPE_ADDRESS_IPV6_WEBSOCKET: {
+
+            FORMAT_TARGET_IPV6(target, binary);
+            break;
+
+        }
+
+    }
+
+};
+
+const FORMAT_COORDINATION_ANNOUNCE_PEER = (text, binary) => {
+
+    const { target } = text;
+    FORMAT_TARGET(target, binary);
 
 };
 
@@ -129,23 +140,17 @@ const FORMAT_COORDINATION_FASTER_LINK_PLEAD = (text, binary) => {
 
 };
 
-const FORMAT_COORDINATION_FORWARD_IPV6_WEBSOCKET = (text, binary) => {
+const FORMAT_COORDINATION_FORWARD = (text, binary) => {
 
-    const { destination } = text;
-    const { host, port } = destination;
-
-    INSERT_UINT16(binary, OFFSET_FORWARD_IPV6_WEBSOCKET_PORT, port);
-    INSERT_HOST_IPV6(binary, OFFSET_FORWARD_IPV6_WEBSOCKET_HOST, host);
+    const { target } = text;
+    FORMAT_TARGET(target, binary);
 
 };
 
-const FORMAT_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET = (text, binary) => {
+const FORMAT_COORDINATION_REDIRECT_STATIC = (text, binary) => {
 
-    const { destination } = text;
-    const { host, port } = destination;
-
-    INSERT_UINT16(binary, OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_PORT, port);
-    INSERT_HOST_IPV6(binary, OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_HOST, host);
+    const { target } = text;
+    FORMAT_TARGET(target, binary);
 
     const { sharedSecretDecryption, remainderDecryption } = text;
     binary.set(sharedSecretDecryption, OFFSET_SHARED_SECRET_DECRYPTION);
@@ -187,9 +192,9 @@ export const format = (text, binary) => {
 
     switch (type) {
 
-        case TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET: {
+        case TYPE_COORDINATION_ANNOUNCE_PEER: {
 
-            FORMAT_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET(text, binary);
+            FORMAT_COORDINATION_ANNOUNCE_PEER(text, binary);
             break;
 
         }
@@ -208,16 +213,16 @@ export const format = (text, binary) => {
 
         }
 
-        case TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET: {
+        case TYPE_COORDINATION_FORWARD: {
 
-            FORMAT_COORDINATION_FORWARD_IPV6_WEBSOCKET(text, binary);
+            FORMAT_COORDINATION_FORWARD(text, binary);
             break;
 
         }
 
-        case TYPE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET: {
+        case TYPE_COORDINATION_REDIRECT_STATIC: {
 
-            FORMAT_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET(text, binary);
+            FORMAT_COORDINATION_REDIRECT_STATIC(text, binary);
             break;
 
         }
