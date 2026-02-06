@@ -71,11 +71,6 @@ export const OFFSET_LENGTH_REAL                                 = 236;
 export const OFFSET_LENGTH_NEXT                                 = 238;
 export const OFFSET_KEY_DECRYPTION                              = 240;
 
-export const OFFSET_REPLY_IPV4_PORT                             = 14;
-export const OFFSET_REPLY_IPV4_HOST                             = 16;
-export const OFFSET_REPLY_IPV6_PORT                             = 14;
-export const OFFSET_REPLY_IPV6_HOST                             = 32;
-
 export const OFFSET_SHARED_SECRET_DECRYPTION                    = 48;
 export const OFFSET_SHARED_SECRET_ENCRYPTION                    = 64;
 export const OFFSET_REMAINDER_DECRYPTION                        = 80;
@@ -85,91 +80,35 @@ export const OFFSET_KEY_COLOR_CHANGE                            = 96;
 export const OFFSET_COORDINATION_HEADER                         = 0;
 export const OFFSET_COORDINAITION_KEY_SENDER                    = 256;
 
-// offsets for TYPE_COORDINATION_ANNOUNCE_PEER_IPV4_WEBSOCKET
+// offsets for addresses
 
-export const OFFSET_ANNOUNCE_PEER_IPV4_WEBSOCKET_PORT           = 12;
-export const OFFSET_ANNOUNCE_PEER_IPV4_WEBSOCKET_HOST           = 16;
+export const OFFSET_ADDRESS_REPLY_IPV4_PORT                     = 14;
+export const OFFSET_ADDRESS_REPLY_IPV4_HOST                     = 16;
+export const OFFSET_ADDRESS_REPLY_IPV6_PORT                     = 14;
+export const OFFSET_ADDRESS_REPLY_IPV6_HOST                     = 32;
 
-// offsets for TYPE_COORDINATION_ANNOUNCE_PEER_IPV4_UDP
+export const OFFSET_ADDRESS_TARGET_IPV4_PORT                    = 12;
+export const OFFSET_ADDRESS_TARGET_IPV4_HOST                    = 16;
+export const OFFSET_ADDRESS_TARGET_IPV6_PORT                    = 12;
+export const OFFSET_ADDRESS_TARGET_IPV6_HOST                    = 16;
 
-export const OFFSET_ANNOUNCE_PEER_IPV4_UDP_PORT                 = 12;
-export const OFFSET_ANNOUNCE_PEER_IPV4_UDP_HOST                 = 16;
-
-// offsets for TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET
-
-export const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_PORT           = 12;
-export const OFFSET_ANNOUNCE_PEER_IPV6_WEBSOCKET_HOST           = 16;
-
-// offsets for TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_UDP
-
-export const OFFSET_ANNOUNCE_PEER_IPV6_UDP_PORT                 = 12;
-export const OFFSET_ANNOUNCE_PEER_IPV6_UDP_HOST                 = 16;
-
-// offsets for TYPE_COORDINATION_FORWARD_IPV4_WEBSOCKET
-
-export const OFFSET_FORWARD_IPV4_WEBSOCKET_PORT                 = 12;
-export const OFFSET_FORWARD_IPV4_WEBSOCKET_HOST                 = 16;
-
-// offsets for TYPE_COORDINATION_FORWARD_IPV4_UDP
-
-export const OFFSET_FORWARD_IPV4_UDP_PORT                       = 12;
-export const OFFSET_FORWARD_IPV4_UDP_HOST                       = 16;
-
-// offsets for TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET
-
-export const OFFSET_FORWARD_IPV6_WEBSOCKET_PORT                 = 12;
-export const OFFSET_FORWARD_IPV6_WEBSOCKET_HOST                 = 16;
-
-// offsets for TYPE_COORDINATION_FORWARD_IPV6_UDP
-
-export const OFFSET_FORWARD_IPV6_UDP_PORT                       = 12;
-export const OFFSET_FORWARD_IPV6_UDP_HOST                       = 16;
-
-// offsets for TYPE_COORDINATION_REDIRECT_STATIC_IPV4_WEBSOCKET
-
-export const OFFSET_REDIRECT_STATIC_IPV4_WEBSOCKET_PORT         = 12;
-export const OFFSET_REDIRECT_STATIC_IPV4_WEBSOCKET_HOST         = 16;
-
-// offsets for TYPE_COORDINATION_FORWARD_IPV4_UDP
-
-export const OFFSET_REDIRECT_STATIC_IPV4_UDP_PORT               = 12;
-export const OFFSET_REDIRECT_STATIC_IPV4_UDP_HOST               = 16;
-
-// offsets for TYPE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET
-
-export const OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_PORT         = 12;
-export const OFFSET_REDIRECT_STATIC_IPV6_WEBSOCKET_HOST         = 16;
-
-// offsets for TYPE_COORDINATION_REDIRECT_STATIC_IPV6_UDP
-
-export const OFFSET_REDIRECT_STATIC_IPV6_UDP_PORT               = 12;
-export const OFFSET_REDIRECT_STATIC_IPV6_UDP_HOST               = 16;
+export const OFFSET_ADDRESS_TYPE                                = 3;
 
 ////////////////////////////////////////////////////////////////////////
 // TYPES                                                              //
 ////////////////////////////////////////////////////////////////////////
 
 // all defined types for coordination packets
-export const TYPE_COORDINATION_FORWARD_IPV4_WEBSOCKET           = 0;
-export const TYPE_COORDINATION_FORWARD_IPV4_UDP                 = 1;
-export const TYPE_COORDINATION_FORWARD_IPV6_WEBSOCKET           = 2;
-export const TYPE_COORDINATION_FORWARD_IPV6_UDP                 = 3;
-export const TYPE_COORDINATION_REDIRECT_STATIC_IPV4_WEBSOCKET   = 4;
-export const TYPE_COORDINATION_REDIRECT_STATIC_IPV4_UDP         = 5;
-export const TYPE_COORDINATION_REDIRECT_STATIC_IPV6_WEBSOCKET   = 6;
-export const TYPE_COORDINATION_REDIRECT_STATIC_IPV6_UDP         = 7;
-
-export const TYPE_COORDINATION_ANNOUNCE_PEER_IPV4_WEBSOCKET     = 12;
-export const TYPE_COORDINATION_ANNOUNCE_PEER_IPV4_UDP           = 13;
-export const TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_WEBSOCKET     = 14;
-export const TYPE_COORDINATION_ANNOUNCE_PEER_IPV6_UDP           = 15;
+export const TYPE_COORDINATION_FORWARD                          = 0;
+export const TYPE_COORDINATION_ANNOUNCE_PEER                    = 1;
+export const TYPE_COORDINATION_REDIRECT_STATIC                  = 2;
 
 export const TYPE_COORDINATION_FASTER_LINK_PLEAD                = 16;
 export const TYPE_COORDINATION_FASTER_LINK_GRANT                = 17;
 export const TYPE_COORDINATION_FASTER_LINK_TRADE                = 18;
 export const TYPE_COORDINATION_FASTER_LINK_CHECK                = 19;
 
-export const REPLY_TYPE_IPV4_WEBSOCKET                          = 0;
-export const REPLY_TYPE_IPV4_UDP                                = 1;
-export const REPLY_TYPE_IPV6_WEBSOCKET                          = 2;
-export const REPLY_TYPE_IPV6_UDP                                = 3;
+export const TYPE_ADDRESS_IPV4_WEBSOCKET                        = 0;
+export const TYPE_ADDRESS_IPV4_UDP                              = 1;
+export const TYPE_ADDRESS_IPV6_WEBSOCKET                        = 2;
+export const TYPE_ADDRESS_IPV6_UDP                              = 3;
