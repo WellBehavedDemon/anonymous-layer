@@ -8,6 +8,7 @@ export const LENGTH_HOST_IPV6                                   = 16;
 export const LENGTH_KEY_DECRYPTION                              = 16;
 export const LENGTH_KEY_ENCRYPTION                              = 16;
 export const LENGTH_KEY_SYMMETRIC                               = 16;
+export const LENGTH_SESSION_TOKEN                               = 8;
 export const LENGTH_SHARED_REMAINDER                            = 8;
 export const LENGTH_SHARED_SECRET                               = 16;
 
@@ -67,6 +68,7 @@ export const OFFSET_SHIFT_TIME_TOTAL                            = 5;
 export const OFFSET_SHIFT_DATA_AVERAGE                          = 6;
 export const OFFSET_SHIFT_DATA_TOTAL                            = 7;
 export const OFFSET_FLAGS_32BITS                                = 8;
+export const OFFSET_SESSION_TOKEN                               = 224;
 export const OFFSET_LENGTH_REAL                                 = 236;
 export const OFFSET_LENGTH_NEXT                                 = 238;
 export const OFFSET_KEY_DECRYPTION                              = 240;

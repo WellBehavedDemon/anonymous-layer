@@ -18,6 +18,8 @@ import {
     OFFSET_REMAINDER_DECRYPTION,
     OFFSET_REMAINDER_ENCRYPTION,
 
+    OFFSET_SESSION_TOKEN,
+
     OFFSET_SHIFT_DATA_AVERAGE,
     OFFSET_SHIFT_DATA_TOTAL,
     OFFSET_SHIFT_TIME_IDLE,
@@ -112,6 +114,9 @@ const FORMAT_COORDINATION_ANNOUNCE_PEER = (text, binary) => {
 
 const FORMAT_COORDINATION_FASTER_LINK_GRANT = (text, binary) => {
 
+    const { sessionToken } = text;
+    binary.set(sessionToken, OFFSET_SESSION_TOKEN);
+
     const { reply } = text;
     FORMAT_REPLY(reply, binary);
 
@@ -126,6 +131,9 @@ const FORMAT_COORDINATION_FASTER_LINK_PLEAD = (text, binary) => {
     const { sharedSecretEncryption, remainderEncryption } = text;
     binary.set(sharedSecretEncryption, OFFSET_SHARED_SECRET_ENCRYPTION);
     binary.set(remainderEncryption, OFFSET_REMAINDER_ENCRYPTION);
+
+    const { sessionToken } = text;
+    binary.set(sessionToken, OFFSET_SESSION_TOKEN);
 
     const { shiftTimeIdle, shiftTimeTotal } = text;
     binary[OFFSET_SHIFT_TIME_IDLE] = shiftTimeIdle;
