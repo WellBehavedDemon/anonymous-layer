@@ -1,4 +1,17 @@
 ////////////////////////////////////////////////////////////////////////
+// FLAGS                                                              //
+////////////////////////////////////////////////////////////////////////
+
+export const FLAG_CLIENT_IPV4_WEBSOCKET                         = 1 <<  0;
+export const FLAG_CLIENT_IPV4_UDP                               = 1 <<  1;
+export const FLAG_CLIENT_IPV6_WEBSOCKET                         = 1 <<  2;
+export const FLAG_CLIENT_IPV6_UDP                               = 1 <<  3;
+export const FLAG_SERVER_IPV4_WEBSOCKET                         = 1 <<  4;
+export const FLAG_SERVER_IPV4_UDP                               = 1 <<  5;
+export const FLAG_SERVER_IPV6_WEBSOCKET                         = 1 <<  6;
+export const FLAG_SERVER_IPV6_UDP                               = 1 <<  7;
+
+////////////////////////////////////////////////////////////////////////
 // LENGHTS - all measured in bit octets, also known as "bytes"        //
 ////////////////////////////////////////////////////////////////////////
 

@@ -13,6 +13,7 @@ import {
     OFFSET_ADDRESS_TYPE,
     OFFSET_COORDINATION_TYPE,
     OFFSET_CHECKSUM,
+    OFFSET_FLAGS_32BITS,
     OFFSET_KEY_COLOR_CHANGE,
     OFFSET_KEY_DECRYPTION,
     OFFSET_LENGTH_REAL,
@@ -40,6 +41,7 @@ import {
     EXTRACT_HOST_IPV6,
     EXTRACT_SUBARRAY,
     EXTRACT_UINT16,
+    EXTRACT_UINT32,
     POLYNOMIAL_HEADER_CHECKSUM,
 } from '../../../utilities/index.mjs';
 
@@ -105,6 +107,8 @@ const PARSE_COORDINATION_ANNOUNCE_PEER = (binary, text) => {
 
     PARSE_TARGET(binary, text);
 
+    text.capabilities = EXTRACT_UINT32(binary, OFFSET_FLAGS_32BITS);
+
 };
 
 const PARSE_COORDINATION_FASTER_LINK_GRANT = (binary, text) => {
@@ -167,6 +171,8 @@ const PARSE_COORDINATION_FASTER_LINK_PLEAD = (binary, text) => {
     text.shiftDataTotal = binary[OFFSET_SHIFT_DATA_TOTAL];
 
     PARSE_REPLY(binary, text);
+
+    text.capabilities = EXTRACT_UINT32(binary, OFFSET_FLAGS_32BITS);
 
 };
 

@@ -4,27 +4,20 @@ import {
     OFFSET_ADDRESS_REPLY_IPV6_HOST,
     OFFSET_ADDRESS_REPLY_IPV6_PORT,
     OFFSET_ADDRESS_TYPE,
-
     OFFSET_CHECKSUM,
-
     OFFSET_COORDINATION_TYPE,
-
+    OFFSET_FLAGS_32BITS,
     OFFSET_KEY_COLOR_CHANGE,
     OFFSET_KEY_DECRYPTION,
-
     OFFSET_LENGTH_REAL,
     OFFSET_LENGTH_NEXT,
-
     OFFSET_REMAINDER_DECRYPTION,
     OFFSET_REMAINDER_ENCRYPTION,
-
     OFFSET_SESSION_TOKEN,
-
     OFFSET_SHIFT_DATA_AVERAGE,
     OFFSET_SHIFT_DATA_TOTAL,
     OFFSET_SHIFT_TIME_IDLE,
     OFFSET_SHIFT_TIME_TOTAL,
-
     OFFSET_SHARED_SECRET_DECRYPTION,
     OFFSET_SHARED_SECRET_ENCRYPTION,
 
@@ -40,6 +33,7 @@ import {
 import {
     INSERT_HOST_IPV6,
     INSERT_UINT16,
+    INSERT_UINT32,
     POLYNOMIAL_HEADER_CHECKSUM,
 } from '../../../utilities/index.mjs';
 
@@ -110,6 +104,9 @@ const FORMAT_COORDINATION_ANNOUNCE_PEER = (text, binary) => {
     const { target } = text;
     FORMAT_TARGET(target, binary);
 
+    const { capabilities } = text;
+    INSERT_UINT32(binary, OFFSET_FLAGS_32BITS, capabilities);
+
 };
 
 const FORMAT_COORDINATION_FASTER_LINK_GRANT = (text, binary) => {
@@ -145,6 +142,9 @@ const FORMAT_COORDINATION_FASTER_LINK_PLEAD = (text, binary) => {
 
     const { reply } = text;
     FORMAT_REPLY(reply, binary);
+
+    const { capabilities } = text;
+    INSERT_UINT32(binary, OFFSET_FLAGS_32BITS, capabilities);
 
 };
 
