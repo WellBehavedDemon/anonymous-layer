@@ -8,7 +8,7 @@ import {
     POLYNOMIAL_MODULUS_BUFFER_LONG,
 } from "../../utilities/index.mjs";
 
-import RandomGenerator from "../../random/index.mjs";
+import RandomGenerator from "../../random/global/index.mjs";
 
 const generate = (sharedSecret, remainder, handshake) => {
 

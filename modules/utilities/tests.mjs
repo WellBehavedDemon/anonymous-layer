@@ -8,7 +8,7 @@ import {
     POLYNOMIAL_MODULUS_BUFFER_LONG,
 } from './index.mjs';
 
-import RandomGenerator from "../random/index.mjs";
+import RandomGenerator from "../random/global/index.mjs";
 import { expect } from "chai";
 
 const TO_BIG_INTEGER = (buffer) => {

@@ -1,5 +1,5 @@
 import MultiplexingCryptography from "./index.mjs";
-import RandomGenerator from '../../random/index.mjs';
+import RandomGenerator from '../../random/global/index.mjs';
 
 import {
     LENGHT_HANDSHAKE,

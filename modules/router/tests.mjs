@@ -2,7 +2,7 @@ import {
     LENGTH_COORDINATION_KEY,
 } from '../constants/index.mjs';
 
-import RandomGenerator from '../random/index.mjs';
+import RandomGenerator from '../random/global/index.mjs';
 import AnonymityRouter from './index.mjs';
 
 import { expect } from 'chai';

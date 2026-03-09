@@ -1,7 +1,7 @@
 import CoordinationPacketsFormatter from '../packets/coordination/format/index.mjs';
 import CoordinationPacketsParser from '../packets/coordination/parse/index.mjs';
 import ElGamalCryptography from '../cryptography/elgamal/index.mjs';
-import RandomGenerator from '../random/index.mjs';
+import RandomGenerator from '../random/global/index.mjs';
 import TwofishCryptography from '../cryptography/twofish/index.mjs';
 
 import { EventEmitter } from 'events';
