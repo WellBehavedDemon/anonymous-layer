@@ -17,6 +17,7 @@ export const FLAG_SERVER_IPV6_UDP                               = 1 <<  7;
 
 export const LENGTH_COORDINATION_HEADER                         = 256;
 export const LENGTH_COORDINATION_KEY                            = 256;
+export const LENGHT_HANDSHAKE                                   = 16;
 export const LENGTH_HOST_IPV6                                   = 16;
 export const LENGTH_KEY_DECRYPTION                              = 16;
 export const LENGTH_KEY_ENCRYPTION                              = 16;
