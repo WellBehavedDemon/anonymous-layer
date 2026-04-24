@@ -1,44 +1,14 @@
-const POLYNOMIAL_DEGREE = (polynomial) => (31 - Math.clz32(polynomial)) | 0;
+import {
+    MASK_MODULUS_EIGHT,
+    MASK_MODULUS_FOUR,
+    POLYNOMIAL_BITS16,
+    POLYNOMIAL_BITS6,
+    POLYNOMIALS_BITS8,
+} from '../../constants/index.mjs';
 
-const POLYNOMIAL_MODULAR_REMAINDER = (dividend, divisor) => {
-
-    const degreeDivisor = POLYNOMIAL_DEGREE(divisor);
-    let degreeDividend = POLYNOMIAL_DEGREE(dividend);
-    while (degreeDividend >= degreeDivisor) {
-
-        const shift = (degreeDividend - degreeDivisor) | 0;
-        const subtractor = divisor << shift;
-        dividend = dividend ^ subtractor;
-
-        degreeDividend = POLYNOMIAL_DEGREE(dividend);
-
-    }
-
-    return dividend;
-
-};
-
-const MASK_MODULUS_FOUR = 0b11;
-const MASK_MODULUS_EIGHT = 0b111;
-
-// expression: x^16 + x^14 + x^10 + x^8 + x^3 + x^1 + 1
-// binary: 0b10100010100001011
-const POLYNOMIAL_BITS16 = 0b10100010100001011;
-
-// expression: x^6 + x^5 + x^3 + x^2 + 1
-// binary: 0b1101101
-const POLYNOMIAL_BITS6 = 0b1101101;
-
-const POLYNOMIALS_BITS8 = new Uint32Array([
-    0b100011101, // x^8 + x^4 + x^3 + x^2 + 1
-    0b100101011, // x^8 + x^5 + x^3 + x^1 + 1
-    0b101011111, // x^8 + x^6 + x^4 + x^3 + x^2 + x^1 + 1
-    0b101100011, // x^8 + x^6 + x^5 + x^1 + 1
-    0b101100101, // x^8 + x^6 + x^5 + x^2 + 1
-    0b100000011, // x^8 + x^6 + x^5 + x^3 + 1
-    0b100000011, // x^8 + x^7 + x^6 + x^1 + 1
-    0b100000011, // x^8 + x^7 + x^6 + x^5 + x^2 + x^1 + 1
-]);
+import {
+    POLYNOMIAL_MODULAR_REMAINDER,
+} from '../../utilities/index.mjs';
 
 const create = () => {
 

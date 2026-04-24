@@ -36,6 +36,9 @@ export const LIMIT_UINT32_MAX
 // MODULUS                                                            //
 ////////////////////////////////////////////////////////////////////////
 
+export const MASK_MODULUS_FOUR = 0b11;
+export const MASK_MODULUS_EIGHT = 0b111;
+
 // polynomial modulus for packet checksum
 // expression: x^17 + x^3 + 1
 // binary: 0b10000000000001001
@@ -59,6 +62,25 @@ export const MODULUS_SHARED_SECRET = Object.freeze([
     0b00000100,
     0b00000100,
     0b00000001,
+]);
+
+// expression: x^6 + x^5 + x^3 + x^2 + 1
+// binary: 0b1101101
+export const POLYNOMIAL_BITS6 = 0b1101101;
+
+// expression: x^16 + x^14 + x^10 + x^8 + x^3 + x^1 + 1
+// binary: 0b10100010100001011
+export const POLYNOMIAL_BITS16 = 0b10100010100001011;
+
+export const POLYNOMIALS_BITS8 = new Uint32Array([
+    0b100011101, // x^8 + x^4 + x^3 + x^2 + 1
+    0b100101011, // x^8 + x^5 + x^3 + x^1 + 1
+    0b101011111, // x^8 + x^6 + x^4 + x^3 + x^2 + x^1 + 1
+    0b101100011, // x^8 + x^6 + x^5 + x^1 + 1
+    0b101100101, // x^8 + x^6 + x^5 + x^2 + 1
+    0b100000011, // x^8 + x^6 + x^5 + x^3 + 1
+    0b100000011, // x^8 + x^7 + x^6 + x^1 + 1
+    0b100000011, // x^8 + x^7 + x^6 + x^5 + x^2 + x^1 + 1
 ]);
 
 ////////////////////////////////////////////////////////////////////////

@@ -138,6 +138,24 @@ export const INSERT_UINT32 = (binary, offset, integer) => {
 
 export const POLYNOMIAL_DEGREE = (polynomial) => (31 - Math.clz32(polynomial)) | 0;
 
+export const POLYNOMIAL_MODULAR_REMAINDER = (dividend, divisor) => {
+
+    const degreeDivisor = POLYNOMIAL_DEGREE(divisor);
+    let degreeDividend = POLYNOMIAL_DEGREE(dividend);
+    while (degreeDividend >= degreeDivisor) {
+
+        const shift = (degreeDividend - degreeDivisor) | 0;
+        const subtractor = divisor << shift;
+        dividend = dividend ^ subtractor;
+
+        degreeDividend = POLYNOMIAL_DEGREE(dividend);
+
+    }
+
+    return dividend;
+
+};
+
 export const POLYNOMIAL_MODULUS_BUFFER = (buffer, offset, length, modulus) => {
 
     const degreeModulus = POLYNOMIAL_DEGREE(modulus);
