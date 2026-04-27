@@ -2,14 +2,10 @@
 // FLAGS                                                              //
 ////////////////////////////////////////////////////////////////////////
 
-export const FLAG_CLIENT_IPV4_WEBSOCKET                         = 1 <<  0;
-export const FLAG_CLIENT_IPV4_UDP                               = 1 <<  1;
-export const FLAG_CLIENT_IPV6_WEBSOCKET                         = 1 <<  2;
-export const FLAG_CLIENT_IPV6_UDP                               = 1 <<  3;
-export const FLAG_SERVER_IPV4_WEBSOCKET                         = 1 <<  4;
-export const FLAG_SERVER_IPV4_UDP                               = 1 <<  5;
-export const FLAG_SERVER_IPV6_WEBSOCKET                         = 1 <<  6;
-export const FLAG_SERVER_IPV6_UDP                               = 1 <<  7;
+export const FLAG_CLIENT_IPV6_WEBSOCKET                         = 1 <<  0;
+export const FLAG_CLIENT_IPV6_UDP                               = 1 <<  1;
+export const FLAG_SERVER_IPV6_WEBSOCKET                         = 1 <<  2;
+export const FLAG_SERVER_IPV6_UDP                               = 1 <<  3;
 
 ////////////////////////////////////////////////////////////////////////
 // LENGHTS - all measured in bit octets, also known as "bytes"        //
@@ -120,13 +116,9 @@ export const OFFSET_COORDINAITION_KEY_SENDER                    = 256;
 
 // offsets for addresses
 
-export const OFFSET_ADDRESS_REPLY_IPV4_PORT                     = 14;
-export const OFFSET_ADDRESS_REPLY_IPV4_HOST                     = 16;
 export const OFFSET_ADDRESS_REPLY_IPV6_PORT                     = 14;
 export const OFFSET_ADDRESS_REPLY_IPV6_HOST                     = 32;
 
-export const OFFSET_ADDRESS_TARGET_IPV4_PORT                    = 12;
-export const OFFSET_ADDRESS_TARGET_IPV4_HOST                    = 16;
 export const OFFSET_ADDRESS_TARGET_IPV6_PORT                    = 12;
 export const OFFSET_ADDRESS_TARGET_IPV6_HOST                    = 16;
 
@@ -146,7 +138,5 @@ export const TYPE_COORDINATION_FASTER_LINK_GRANT                = 17;
 export const TYPE_COORDINATION_FASTER_LINK_TRADE                = 18;
 export const TYPE_COORDINATION_FASTER_LINK_CHECK                = 19;
 
-export const TYPE_ADDRESS_IPV4_WEBSOCKET                        = 0;
-export const TYPE_ADDRESS_IPV4_UDP                              = 1;
 export const TYPE_ADDRESS_IPV6_WEBSOCKET                        = 2;
 export const TYPE_ADDRESS_IPV6_UDP                              = 3;
