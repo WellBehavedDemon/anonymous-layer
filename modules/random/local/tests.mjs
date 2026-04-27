@@ -29,6 +29,7 @@ const POPULATION_COUNT = (buffer) => {
 const LIMIT_TESTS_A = 2048;
 const LIMIT_TESTS_B = 32;
 const LIMIT_TESTS_C = 32;
+const LIMIT_TESTS_D = 32;
 
 // if the population count of bits is within 40%~60%, let's call it a pass.
 const EXPECTED_RANGE_A = 819;
@@ -126,7 +127,7 @@ describe('RandomGenerator', () => {
 
         const randomGenerator = RandomGenerator.create();
         const seed = new Uint16Array(16);
-        
+
         const bufferA = new Uint8Array(256);
         const bufferB = new Uint8Array(256);
 
@@ -165,6 +166,54 @@ describe('RandomGenerator', () => {
             for (let index = 0; index < 256; index = (index + 1) | 0) {
 
                 expect(bufferA[index]).to.be.equal(bufferB[index]);
+
+            }
+
+        }
+
+    });
+
+    it('should be able to skip octets in the sequence', () => {
+
+        const randomGenerator = RandomGenerator.create();
+        const seed = new Uint16Array(16);
+
+        const bufferA = new Uint8Array(256);
+        const bufferB = new Uint8Array(256);
+        const bufferC = new Uint8Array(256);
+
+        let test = 0;
+        while (test < LIMIT_TESTS_D) {
+
+            test = (test + 1) | 0;
+
+            for (let index = 0; index < 16; index = (index + 1) | 0) {
+
+                if (index % 2 === 0) {
+
+                    seed[index] = performance.now();
+
+                } else {
+
+                    seed[index] = Math.random() * (1 << 18);
+
+                }
+
+            }
+
+            randomGenerator.seed(seed);
+
+            randomGenerator.fill(bufferA);
+            randomGenerator.fill(bufferB);
+
+            randomGenerator.seed(seed);
+            randomGenerator.skip(256);
+            randomGenerator.fill(bufferC);
+
+
+            for (let index = 0; index < 256; index = (index + 1) | 0) {
+
+                expect(bufferB[index]).to.be.equal(bufferC[index]);
 
             }
 
