@@ -114,11 +114,23 @@ const create = () => {
 
     };
 
+    const skip = (units) => {
+
+        while (units > 0) {
+
+            units = (units - 1) | 0;
+            generateOctet();
+
+        }
+
+    };
+
     const localRandomGenerator = Object.freeze({
         fill,
         load,
         save,
         seed,
+        skip,
     });
 
     return localRandomGenerator;
